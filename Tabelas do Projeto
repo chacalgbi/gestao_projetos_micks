@@ -1,0 +1,35 @@
+Projeto
+-id
+-Selecionar_programa
+-Nome do Projeto
+-permissão
+-status
+-obs
+-Data Inicio Projeto
+
+
+Items
+-id
+-id_projeto
+-Descrição do Item
+-Quantidade
+-Preço Unitário
+-Total Parcial
+-Grupo
+-Obs
+-forma_pagamento
+
+
+Usuarios
+-id
+-usuario
+-senha
+-Nome completo
+-nivel
+
+
+Gastos
+- Item
+- QTD
+- Valor uni
+- Total Parcial

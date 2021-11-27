@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/img/icon.png">
+    <title>Dashboard - Gestão de Projeto</title>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="./assets/dist/js/jquery-3.6.0.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./assets/dist/js/sweetalert2.all.min.js"></script>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <script src="./assets/dist/js/pace.js"></script>
+    <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
+    <script src="./assets/dist/js/notify.js"></script>
+    <style>
+      body {
+        background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+      #corpo{
+        background-color: #1C1C1C;
+      }
+      #principal{
+        background-color: #242323;
+        opacity : 0.7;
+      }
+      .infor{
+        background-color: #4b4a4a;
+        border-radius: 20px;
+        margin-left: 8px;
+        margin-top: 3px;
+        padding: 0.4rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div><br /><br /><br />
+    <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+      <div class="row d-flex justify-content-evenly">
+        <div class="info col-sm-11 d-flex justify-content-evenly">
+          <h1>Teste - Título do projeto</h1>
+        </div>
+      </div>
+      <div class="row info justify-content-center" id="info">
+        <div class="infor col-sm-6 d-flex justify-content-evenly" id="info1">
+          <button type="button" class="btn btn-outline-warning">Warning</button>
+          <button type="button" class="btn btn-outline-info">Info</button>
+          <button type="button" class="btn btn-outline-light">Light</button>
+          <button type="button" class="btn btn-outline-dark">Dark</button>
+        </div>
+        <div class="infor col-sm-5 d-flex justify-content-evenly" id="info2">
+          teste 2 
+        </div>
+      </div>
+    </div>
+    <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/dist/js/geral.js"></script>
+
+    <script>
+      $("#header").load("menu/menu.html");
+      $(document).ready( function ($){
+        verificar();
+        iniciar();
+      });
+
+      function iniciar(){
+        
+      }
+    </script>
+  </body>
+</html>

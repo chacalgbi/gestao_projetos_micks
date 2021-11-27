@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Menu</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/img/icon.png">
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body> 
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gestão de Projetos | </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Programas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Projetos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Usuários</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Itens</a>
+            </li>
+          </ul>
+          <form>
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="sair()" id="sair">Sair</a>
+              </li>
+            </ul>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/dist/js/jquery-3.6.0.js"></script>
+    <script src="../assets/dist/js/notify.js"></script>
+    <script src="../assets/dist/js/geral.js"></script>
+    <script>
+      $(document).ready( function ($){
+        iniciar();
+      });
+
+      function iniciar(){
+        let user = document.getElementById('sair');
+        user.innerHTML = `Sair | ${sessionStorage.nome} - ${sessionStorage.nivel}`;
+      }
+      
+    </script>
+  </body>
+</html>
