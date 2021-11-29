@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/img/icon.png">
+    <title>Programas</title>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="./assets/dist/js/jquery-3.6.0.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./assets/dist/js/sweetalert2.all.min.js"></script>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <script src="./assets/dist/js/pace.js"></script>
+    <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
+    <script src="./assets/dist/js/notify.js"></script>
+    <style>
+      body {
+        background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+      #corpo{
+        background-color: #1C1C1C;
+      }
+      #principal{
+        background-color: #242323;
+        opacity : 0.7;
+      }
+      .infor{
+        background-color: #4b4a4a;
+        border-radius: 20px;
+        margin-left: 8px;
+        margin-top: 3px;
+        padding: 0.4rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div><br /><br /><br />
+    <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+      <div class="row d-flex justify-content-evenly">
+        <div class="info col-sm-11 d-flex justify-content-evenly">
+          <h1>Programas</h1>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline-info">Inserir Programa</button>
+      <div class="row info justify-content-center" id="info">
+        <table class="table table-dark table-hover">
+          <thead>
+             <tr>
+               <th>#</th>
+               <th>Programa</th>
+               <th>Obs</th>
+               <th>Data/Hora</th>
+               <th>Editar</th>
+               <th>Apagar</th>
+             </tr>
+           </thead>
+           <tbody id="corpo_tabela">
+           </tbody>
+         </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Editar Programa</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label class="col-form-label">ID:</label>
+                <label id="id_"></label>
+              </div>
+              <div class="mb-3">
+                <label class="col-form-label">Nome:</label>
+                <input type="text" class="form-control" id="nome">
+              </div>
+              <div class="mb-3">
+                <labelclass="col-form-label">OBS:</label>
+                <textarea class="form-control" id="obs"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-primary">Alterar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/dist/js/geral.js"></script>
+
+    <script>
+      $("#header").load("menu/menu.html");
+      $(document).ready( function ($){
+        verificar();
+      });
+
+      function iniciar(){
+        const ip = sessionStorage.ip;
+        let tabela_ = document.getElementById('corpo_tabela');
+
+        axios.get(`${ip}programa_read`).then(function (response) {
+                if(response.data.erroGeral == 'sim'){
+                  sessionStorage.login = 'NOT';
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Erro interno, procure o ADMIN'
+                  })
+                }else{
+                  console.log(response.data.dados.resposta);
+                  $.notify(`Programas Cadastrados: ${response.data.dados.resposta.length}`, "success");
+                  let tabela = "";
+                  response.data.dados.resposta.map((item, index, array)=>{
+                    tabela += "<tr>";
+                      tabela += `
+                      <td>${index+1}</td>
+                      <td>${item.nome}</td>
+                      <td>${item.obs}</td>
+                      <td>${item.hora1}</td>
+                      <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" data-bs-id="${item.id}" data-bs-nome="${item.nome}" data-bs-obs="${item.obs}">Editar</button></td>
+                      <td><button type="button" class="btn btn-outline-danger" id="botao_apagar" value="${item.id}">Apagar</button></td>
+                      `;
+                    tabela += "</tr>";
+                  });
+                  tabela_.innerHTML = tabela;
+                }
+                
+            })
+            .catch(function (error) { console.log(error) });
+      }
+
+      iniciar();
+
+      var cx_modal = document.getElementById('modal');
+      cx_modal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        document.getElementById('nome').value = button.getAttribute('data-bs-nome');
+        document.getElementById('obs').value = button.getAttribute('data-bs-obs');
+        document.getElementById('id_').innerHTML = button.getAttribute('data-bs-id');
+      });
+    </script>
+  </body>
+</html>
