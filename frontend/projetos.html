@@ -56,20 +56,25 @@
     <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
       <div class="row d-flex justify-content-evenly">
         <div class="info col-sm-11 d-flex justify-content-evenly">
-          <h1>Programas</h1>
+          <h1>Projetos</h1>
         </div>
       </div>
-      <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Inserir Programa</button>
+      <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Inserir Projeto</button>
       <div class="row info justify-content-center" id="info">
         <table class="table table-dark table-hover">
           <thead>
              <tr>
                <th>#</th>
+               <th>Projeto</th>
                <th>Programa</th>
-               <th>Obs</th>
-               <th>Data/Hora</th>
+               <th>Envolvidos</th>
+               <th>Objetivo</th>
+               <th>Prev. Início</th>
+               <th>Prev. Fim</th>
+               <th>Concluído</th>
+               <th>OBS</th>
+               <th>Status</th>
                <th>Editar</th>
-               <th>Apagar</th>
              </tr>
            </thead>
            <tbody id="corpo_tabela">
@@ -88,18 +93,15 @@
           </div>
           <div class="modal-body">
             <form>
-              <div class="mb-3">
-                <label class="col-form-label">ID:</label>
-                <label id="id_"></label>
-              </div>
-              <div class="mb-3">
-                <label class="col-form-label">Nome:</label>
-                <input type="text" class="form-control" id="nome">
-              </div>
-              <div class="mb-3">
-                <labelclass="col-form-label">OBS:</label>
-                <textarea class="form-control" rows="6" id="obs"></textarea>
-              </div>
+              <div>ID:<label id="id_"></label></div>
+              <div>Nome:<input type="text" class="form-control" id="nome"></div>
+              <div>Programa:<select class="form-control" id="programa"></select></div>
+              <div>Envolvidos:<div id="checks"></div></div>
+              <div>Objetivos:<textarea class="form-control" rows="4" id="objetivos"></textarea></div>
+              <div>OBS:      <textarea class="form-control" rows="4" id="obs"></textarea></div>
+              <div>Previsão de Início:<input type="date" class="form-control" id="prev_inicio"></div>
+              <div>Previsão de Fim:<input type="date" class="form-control" id="prev_fim"></div>
+              <div>Concluido?<select class="form-control" id="concluido"></select></div>
             </form>
           </div>
           <div class="modal-footer">
@@ -143,31 +145,80 @@
 
     <script>
       var ip = sessionStorage.ip;
+      var array_programas = [];
+
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
         verificar();
       });
 
+      async function listar_programas(){
+        await axios.get(`${ip}programa_read`).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  sessionStorage.login = 'NOT';
+                  Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+                  return array_programas;
+                }else{
+                  //console.log(response.data.dados.resposta);
+                  response.data.dados.resposta.map((item, index, array)=>{
+                    let obj = {};
+                    obj.id = item.id;
+                    obj.nome = item.nome;
+                    array_programas.push(obj);
+                  });
+                  return array_programas;
+                }
+                
+            })
+            .catch(function (error) {
+              console.log(error);
+              return array_programas;
+            });
+      }
+
       function iniciar(){
         let tabela_ = document.getElementById('corpo_tabela');
 
-        axios.get(`${ip}programa_read`).then(function (response) {
+        axios.get(`${ip}projetos_read`).then(function (response) {
                 if(response.data.erroGeral === 'sim'){
                   sessionStorage.login = 'NOT';
                   Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
                 }else{
                   //console.log(response.data.dados.resposta);
-                  $.notify(`Programas Cadastrados: ${response.data.dados.resposta.length}`, "success");
+                  $.notify(`Projetos Cadastrados: ${response.data.dados.resposta.length}`, "success");
                   let tabela = "";
                   response.data.dados.resposta.map((item, index, array)=>{
+                    let imagem = '';
+                    if(item.aprovado === 'nao'){
+                      imagem = 'loading.gif';
+                    }else if(item.aprovado === 'sim'){
+                      imagem = 'OK.png';
+                    }else{
+                      imagem = 'bloqueado.png';
+                    }
                     tabela += "<tr>";
                       tabela += `
                       <td>${index+1}</td>
                       <td>${item.nome}</td>
+                      <td>${item.prog}</td>
+                      <td>${item.responsaveis}</td>
+                      <td>${item.objetivo}</td>
+                      <td>${item.inicio}</td>
+                      <td>${item.fim}</td>
+                      <td>${item.concluido}</td>
                       <td>${item.obs}</td>
-                      <td>${item.hora1}</td>
-                      <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" data-bs-id="${item.id}" data-bs-nome="${item.nome}" data-bs-obs="${item.obs}">Editar</button></td>
-                      <td><button type="button" class="btn btn-outline-danger" id="botao_apagar" value="${item.id}" onclick="deletar(this.value)">Apagar</button></td>
+                      <td><img src="./assets/img/${imagem}" width="40" height="40"></td>
+                      <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal"
+                        data-bs-id="${item.id}"
+                        data-bs-nome="${item.nome}"
+                        data-bs-prog="${item.programa}"
+                        data-bs-responsaveis="${item.responsaveis}"
+                        data-bs-objetivo="${item.objetivo}"
+                        data-bs-inicio="${item.previsao_inicio}"
+                        data-bs-fim="${item.previsao_fim}"
+                        data-bs-concluido="${item.concluido}"
+                        data-bs-obs="${item.obs}"
+                      >Editar</button></td>
                       `;
                     tabela += "</tr>";
                   });
@@ -244,13 +295,42 @@
       }
 
       iniciar();
+      listar_programas();
 
       var cx_modal = document.getElementById('modal');
       cx_modal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
         document.getElementById('nome').value = button.getAttribute('data-bs-nome');
+        document.getElementById('objetivos').value = button.getAttribute('data-bs-objetivo');
         document.getElementById('obs').value = button.getAttribute('data-bs-obs');
-        document.getElementById('id_').innerHTML = button.getAttribute('data-bs-id');
+
+        const inicio1 = button.getAttribute('data-bs-inicio').split("T");
+        document.getElementById('prev_inicio').value = inicio1[0];
+
+        const fim1 = button.getAttribute('data-bs-fim').split("T");
+        document.getElementById('prev_fim').value = fim1[0];
+
+        let selec_concluido = '';
+        if(button.getAttribute('data-bs-concluido')==='sim'){
+          selec_concluido = `<option value="sim" selected>Sim</option><option value="nao">Não</option>`;
+        }else{
+          selec_concluido = `<option value="sim">Sim</option><option value="nao" selected>Não</option>`;
+        }
+        document.getElementById('concluido').innerHTML = selec_concluido;
+
+        let prog_id = button.getAttribute('data-bs-prog');
+        let prog_str = '';
+        array_programas.map((prog)=>{
+          if(prog_id == prog.id){
+            prog_str += `<option value="${prog.id}" selected>${prog.nome}</option>`;
+          }else{
+            prog_str += `<option value="${prog.id}">${prog.nome}</option>`;
+          }
+        });
+        document.getElementById('programa').innerHTML = prog_str;
+
+        listar_perfis();
+        
       });
     </script>
   </body>

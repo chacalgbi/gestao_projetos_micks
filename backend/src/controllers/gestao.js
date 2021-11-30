@@ -4,12 +4,10 @@ const log   = require('../configs/log');
 const API   = require('../configs/resposta_API');;
 const BD    = require('../configs/acessar_BD');
 const delay = require('../configs/delay');
-const TOKEN = '2117878119:AAFrKPaZi63dQudWVJgYkmP4y5_Iym5kd2A';
 const chat_id = -1001779760701;
-const bot = new TelegramBot(TOKEN, {polling: true});
+const bot = new TelegramBot(process.env.TOKEN, {polling: true});
 let tudo_ok = true;
 let resp = {};
-//https://api.telegram.org/bot2117878119:AAFrKPaZi63dQudWVJgYkmP4y5_Iym5kd2A/getUpdates
 
 class gestao{
 
@@ -17,6 +15,23 @@ class gestao{
     tudo_ok = true;
     resp = {};
     const query = `SELECT *, DATE_FORMAT(hora, '%d/%m/%Y %H:%i') as hora1 FROM login WHERE usuario="${req.body.usuario}" AND senha="${req.body.senha}" AND ativo="s";`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async listar_usuarios(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT id, nome_completo FROM login WHERE ativo='s';`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -64,9 +79,11 @@ class gestao{
   }
 
   async programa_insert(req, res){
+    const nome = req.body.nome.replace(/'|"/g, "");
+    const obs = req.body.obs.replace(/'|"/g, "");
     tudo_ok = true;
     resp = {};
-    const query = `INSERT INTO programa (nome, obs) values ("${req.body.nome}", "${req.body.obs}");`;
+    const query = `INSERT INTO programa (nome, obs) values ("${nome}", "${obs}");`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -81,9 +98,11 @@ class gestao{
   }
 
   async programa_update(req, res){
+    const nome = req.body.nome.replace(/'|"/g, "");
+    const obs = req.body.obs.replace(/'|"/g, "");
     tudo_ok = true;
     resp = {};
-    const query = `UPDATE programa SET nome='${req.body.nome}', obs='${req.body.obs}' WHERE id='${req.body.id}';`;
+    const query = `UPDATE programa SET nome='${nome}', obs='${obs}' WHERE id='${req.body.id}';`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -101,6 +120,23 @@ class gestao{
     tudo_ok = true;
     resp = {};
     const query = `DELETE FROM programa WHERE id="${req.body.id}";`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async projetos_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT projetos.*, DATE_FORMAT(previsao_inicio, '%d/%m/%Y') as inicio, DATE_FORMAT(previsao_fim, '%d/%m/%Y') as fim, programa.nome AS prog FROM projetos INNER JOIN programa ON projetos.programa = programa.id;`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
