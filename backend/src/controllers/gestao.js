@@ -150,5 +150,40 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async projetos_update(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `UPDATE projetos SET nome="${req.body.nome}", programa="${req.body.programa}", 
+    responsaveis="${req.body.resp}", objetivo="${req.body.objetivo}", previsao_inicio="${req.body.inicio}", 
+    previsao_fim="${req.body.fim}", obs="${req.body.obs}", concluido="${req.body.concluido}" WHERE id="${req.body.id}";`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async projetos_insert(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${req.body.nome}', '${req.body.programa}', '${req.body.resp}', '${req.body.objetivo}', '${req.body.inicio}', '${req.body.fim}', '${req.body.obs}', '${req.body.concluido}', 'nao');`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
 }
 module.exports = new gestao();

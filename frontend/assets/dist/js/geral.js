@@ -36,12 +36,26 @@ function listar_usuarios(){
     });
 }
 
-async function listar_perfis(){
-    let perfis = '';
+async function list_users(id_div){
+    let select_colaboradores = '';
     const colaboradores = await listar_usuarios();
     colaboradores.map((item)=>{
-        perfis += `<div class="form-check"><input class="form-check-input" type="checkbox" 
-                    value="${item.id}" id="check${item.id}">${item.nome_completo}</div>`;
+        select_colaboradores += `<div class="form-check"><input class="form-check-input" type="checkbox" 
+                    value="${item.nome_completo}" id="${item.nome_completo}">${item.nome_completo}</div>`;
     });
-    document.getElementById('checks').innerHTML = perfis;
+    document.getElementById(id_div).innerHTML = select_colaboradores;
+}
+
+function select_users(id_div){
+    let users = "";
+    let minhaDiv = document.getElementById(id_div);
+    let listaMarcados = minhaDiv.getElementsByTagName("input");
+    for (loop = 0; loop < listaMarcados.length; loop++) {
+        let item = listaMarcados[loop];
+        if (item.type == "checkbox" && item.checked) {
+            users = users + `${item.id}, `;
+        }
+    }
+    const str2 = users.slice(0, -2);
+    return str2;  
 }

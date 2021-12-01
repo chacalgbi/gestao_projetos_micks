@@ -13,5 +13,8 @@ routes.post('/programa_update', gestao.programa_update);
 routes.post('/programa_delete', gestao.programa_delete);
 
 routes.get('/projetos_read', gestao.projetos_read);
+routes.post('/projetos_update', gestao.projetos_update);
+routes.post('/projetos_insert', gestao.projetos_insert);
+
 
 module.exports = routes;

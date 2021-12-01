@@ -59,7 +59,7 @@
           <h1>Projetos</h1>
         </div>
       </div>
-      <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Inserir Projeto</button>
+      <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Projeto</button>
       <div class="row info justify-content-center" id="info">
         <table class="table table-dark table-hover">
           <thead>
@@ -76,10 +76,10 @@
                <th>Status</th>
                <th>Editar</th>
              </tr>
-           </thead>
-           <tbody id="corpo_tabela">
-           </tbody>
-         </table>
+          </thead>
+          <tbody id="corpo_tabela">
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -88,25 +88,25 @@
       <div class="modal-dialog">
         <div class="modal-content modais">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Editar Programa</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Editar Projeto</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <form>
               <div>ID:<label id="id_"></label></div>
-              <div>Nome:<input type="text" class="form-control" id="nome"></div>
-              <div>Programa:<select class="form-control" id="programa"></select></div>
-              <div>Envolvidos:<div id="checks"></div></div>
-              <div>Objetivos:<textarea class="form-control" rows="4" id="objetivos"></textarea></div>
-              <div>OBS:      <textarea class="form-control" rows="4" id="obs"></textarea></div>
-              <div>Previsão de Início:<input type="date" class="form-control" id="prev_inicio"></div>
-              <div>Previsão de Fim:<input type="date" class="form-control" id="prev_fim"></div>
-              <div>Concluido?<select class="form-control" id="concluido"></select></div>
+              <div class="input-group mb-3"><span class="input-group-text">Nome:</span><input type="text" class="form-control" id="nome"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Programa:</span><select class="form-control" id="programa"></select></div>
+              <div class="input-group mb-3"><span class="input-group-text">Envolvidos:</span><div id="checks"></div></div>
+              <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos"></textarea></div>
+              <div class="input-group mb-3"><span class="input-group-text">OBS:</span><textarea class="form-control" rows="3" id="obs"></textarea></div>
+              <div class="input-group mb-3"><span class="input-group-text">Prev. Início:</span><input type="date" class="form-control" id="prev_inicio"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Prev. Fim:</span><input type="date" class="form-control" id="prev_fim"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Concluído?</span><select class="form-control" id="concluido"></select></div>
             </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-primary" id="btn_editar" onclick="salvar()">Alterar</button>
+            <button type="button" class="btn btn-primary" id="btn_editar" onclick="editar_projeto()">Alterar</button>
           </div>
         </div>
       </div>
@@ -117,24 +117,24 @@
       <div class="modal-dialog">
         <div class="modal-content modais">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Inserir Programa</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Cadastrar Projeto</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body modais">
+          <div class="modal-body">
             <form>
-              <div class="mb-3">
-                <label class="col-form-label">Nome:</label>
-                <input type="text" class="form-control" id="nome_insert">
-              </div>
-              <div class="mb-3">
-                <labelclass="col-form-label">OBS:</label>
-                <textarea class="form-control" rows="6" id="obs_insert"></textarea>
-              </div>
+              <div class="input-group mb-3"><span class="input-group-text">Nome:</span><input type="text" class="form-control" id="nome_insert"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Programa:</span><select class="form-control" id="programa_insert"></select></div>
+              <div class="input-group mb-3"><span class="input-group-text">Envolvidos:</span><div id="checks_insert"></div></div>
+              <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos_insert"></textarea></div>
+              <div class="input-group mb-3"><span class="input-group-text">OBS:</span><textarea class="form-control" rows="3" id="obs_insert"></textarea></div>
+              <div class="input-group mb-3"><span class="input-group-text">Prev. Início:</span><input type="date" class="form-control" id="prev_inicio_insert"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Prev. Fim:</span><input type="date" class="form-control" id="prev_fim_insert"></div>
+              <div class="input-group mb-3"><span class="input-group-text">Concluído?</span><select class="form-control" id="concluido_insert"><option value="sim">Sim</option><option value="nao" selected>Não</option></select></div>
             </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-primary" id="btn_inserir" onclick="inserir()">Cadastrar</button>
+            <button type="button" class="btn btn-primary" id="btn_inserir" onclick="inserir_projeto()">Cadastrar</button>
           </div>
         </div>
       </div>
@@ -178,138 +178,136 @@
 
       function iniciar(){
         let tabela_ = document.getElementById('corpo_tabela');
-
-        axios.get(`${ip}projetos_read`).then(function (response) {
-                if(response.data.erroGeral === 'sim'){
-                  sessionStorage.login = 'NOT';
-                  Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
-                }else{
-                  //console.log(response.data.dados.resposta);
-                  $.notify(`Projetos Cadastrados: ${response.data.dados.resposta.length}`, "success");
-                  let tabela = "";
-                  response.data.dados.resposta.map((item, index, array)=>{
-                    let imagem = '';
-                    if(item.aprovado === 'nao'){
-                      imagem = 'loading.gif';
-                    }else if(item.aprovado === 'sim'){
-                      imagem = 'OK.png';
-                    }else{
-                      imagem = 'bloqueado.png';
-                    }
-                    tabela += "<tr>";
-                      tabela += `
-                      <td>${index+1}</td>
-                      <td>${item.nome}</td>
-                      <td>${item.prog}</td>
-                      <td>${item.responsaveis}</td>
-                      <td>${item.objetivo}</td>
-                      <td>${item.inicio}</td>
-                      <td>${item.fim}</td>
-                      <td>${item.concluido}</td>
-                      <td>${item.obs}</td>
-                      <td><img src="./assets/img/${imagem}" width="40" height="40"></td>
-                      <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal"
-                        data-bs-id="${item.id}"
-                        data-bs-nome="${item.nome}"
-                        data-bs-prog="${item.programa}"
-                        data-bs-responsaveis="${item.responsaveis}"
-                        data-bs-objetivo="${item.objetivo}"
-                        data-bs-inicio="${item.previsao_inicio}"
-                        data-bs-fim="${item.previsao_fim}"
-                        data-bs-concluido="${item.concluido}"
-                        data-bs-obs="${item.obs}"
-                      >Editar</button></td>
-                      `;
-                    tabela += "</tr>";
-                  });
-                  tabela_.innerHTML = tabela;
-                }
-                
-            })
-            .catch(function (error) { console.log(error) });
+        if(sessionStorage.login === "OK"){
+          axios.get(`${ip}projetos_read`).then(function (response) {
+                  if(response.data.erroGeral === 'sim'){
+                    sessionStorage.login = 'NOT';
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+                  }else{
+                    //console.log(response.data.dados.resposta);
+                    $.notify(`${response.data.dados.resposta.length} projetos cadastrados`, "success");
+                    let tabela = "";
+                    response.data.dados.resposta.map((item, index, array)=>{
+                      let imagem = '';
+                      if(item.aprovado === 'nao'){
+                        imagem = 'loading.gif';
+                      }else if(item.aprovado === 'sim'){
+                        imagem = 'OK.png';
+                      }else{
+                        imagem = 'bloqueado.png';
+                      }
+                      tabela += "<tr>";
+                        tabela += `
+                        <td>${index+1}</td>
+                        <td>${item.nome}</td>
+                        <td>${item.prog}</td>
+                        <td>${item.responsaveis}</td>
+                        <td>${item.objetivo}</td>
+                        <td>${item.inicio}</td>
+                        <td>${item.fim}</td>
+                        <td>${item.concluido}</td>
+                        <td>${item.obs}</td>
+                        <td><img src="./assets/img/${imagem}" width="40" height="40"></td>
+                        <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal"
+                          data-bs-id="${item.id}"
+                          data-bs-nome="${item.nome}"
+                          data-bs-prog="${item.programa}"
+                          data-bs-responsaveis="${item.responsaveis}"
+                          data-bs-objetivo="${item.objetivo}"
+                          data-bs-inicio="${item.previsao_inicio}"
+                          data-bs-fim="${item.previsao_fim}"
+                          data-bs-concluido="${item.concluido}"
+                          data-bs-obs="${item.obs}"
+                        >Editar</button></td>
+                        `;
+                      tabela += "</tr>";
+                    });
+                    tabela_.innerHTML = tabela;
+                  }
+                  
+              })
+              .catch(function (error) { console.log(error) });
+          }
       }
 
-      function salvar(){
-        const id = document.getElementById('id_').innerHTML;
-        const nome = document.getElementById('nome').value;
-        const obs = document.getElementById('obs').value;
-        if(id === '' || nome === ''){
-          Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha o campo nome do programa!' });
+      function inserir_projeto(){
+        let obj_insert = {
+          nome: document.getElementById('nome_insert').value,
+          programa: document.getElementById('programa_insert').value,
+          resp: select_users("checks_insert"),
+          objetivo: document.getElementById('objetivos_insert').value,
+          inicio: document.getElementById('prev_inicio_insert').value,
+          fim: document.getElementById('prev_fim_insert').value,
+          obs: document.getElementById('obs_insert').value,
+          concluido: document.getElementById('concluido_insert').value,
+        }
+        console.log(obj_insert);
+        
+        if(obj_insert.nome === '' || obj_insert.programa === '' || obj_insert.resp === '' || obj_insert.inicio === '' || obj_insert.fim === '' || obj_insert.objetivo === '' || obj_insert.concluido === ''){
+          Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
         }else{
-          axios.post(`${ip}programa_update`,{nome, obs, id}).then(function (response) {
+          axios.post(`${ip}projetos_insert`,obj_insert).then(function (response) {
               if(response.data.erroGeral === 'sim'){
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
               }else{
-                //console.log(response.data.dados.resposta);
-                $("#btn_editar").notify( "Programa atualizado com sucesso!", { position:'botton right', className:'success', autoHideDelay:2000 });
-                setTimeout(function() { location.replace("programas.html"); }, 2000);
+                $("#btn_inserir").notify( "Projeto cadastrado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
+                //setTimeout(function() { location.replace("projetos.html"); }, 2000);
               }
           })
           .catch(function (error) { console.log(error) });
         }
       }
 
-      function inserir(){
-        const nome = document.getElementById('nome_insert').value;
-        const obs = document.getElementById('obs_insert').value;
-        if(nome === ''){
-          Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha o campo nome do programa!' });
+      function editar_projeto(){
+        let obj_edit = {
+          id: document.getElementById('id_').innerHTML,
+          nome: document.getElementById('nome').value,
+          programa: document.getElementById('programa').value,
+          resp: select_users("checks"),
+          objetivo: document.getElementById('objetivos').value,
+          inicio: document.getElementById('prev_inicio').value,
+          fim: document.getElementById('prev_fim').value,
+          obs: document.getElementById('obs').value,
+          concluido: document.getElementById('concluido').value,
+        }
+        
+        if(obj_edit.id === '' || obj_edit.nome === '' || obj_edit.resp === '' || obj_edit.inicio === '' || obj_edit.fim === '' || obj_edit.objetivo === '' || obj_edit.concluido === ''){
+          Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
         }else{
-          axios.post(`${ip}programa_insert`,{nome, obs}).then(function (response) {
-            if(response.data.erroGeral === 'sim'){
-              Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
-            }else{
-              //console.log(response.data.dados.resposta);
-              //$.notify(`Programa Inserido`, "success");
-              $("#btn_inserir").notify( "Programa cadastrado com sucesso!", { position:'botton right', className:'success', autoHideDelay:2000 });
-              setTimeout(function() { location.replace("programas.html"); }, 2000);
-            }
+          axios.post(`${ip}projetos_update`,obj_edit).then(function (response) {
+              if(response.data.erroGeral === 'sim'){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+              }else{
+                //console.log(response.data.dados.resposta);
+                $("#btn_editar").notify( "Projeto atualizado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
+                setTimeout(function() { location.replace("projetos.html"); }, 2000);
+              }
           })
           .catch(function (error) { console.log(error) });
         }
       }
 
-      function deletar(id){
-        Swal.fire({
-          title: 'Deseja apagar este programa? Os projetos relacionados a ele serão afetados! (AÇÃO NÃO RECOMENDADA!)',
-          icon: 'question',
-          showDenyButton: true,
-          showCancelButton: false,
-          confirmButtonText: 'Apagar',
-          denyButtonText: `Cancelar operação`,
-        }).then((result) => {
-          if (result.isConfirmed) {
-              axios.post(`${ip}programa_delete`,{id: id}).then(function (response) {
-                  if(response.data.erroGeral === 'sim'){
-                    Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
-                  }else{
-                    Swal.fire('Programa deletado!', 'Verifique se os projetos não foram afetados.', 'success');
-                    setTimeout(function() { location.replace("programas.html"); }, 2000);
-                  }
-              })
-              .catch(function (error) { console.log(error) });
-          } else if (result.isDenied) {
-            Swal.fire('Operação cancelada!', '', 'info');
-          }
-        });
-      }
-
       iniciar();
       listar_programas();
 
+      // Modal de edição de projetos.
       var cx_modal = document.getElementById('modal');
       cx_modal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
+        document.getElementById('id_').innerHTML = button.getAttribute('data-bs-id');
         document.getElementById('nome').value = button.getAttribute('data-bs-nome');
         document.getElementById('objetivos').value = button.getAttribute('data-bs-objetivo');
         document.getElementById('obs').value = button.getAttribute('data-bs-obs');
 
+        //Coloca a data do inicio do projeto já no campo.
         const inicio1 = button.getAttribute('data-bs-inicio').split("T");
         document.getElementById('prev_inicio').value = inicio1[0];
 
+        //Coloca a data do fim do projeto já no campo.
         const fim1 = button.getAttribute('data-bs-fim').split("T");
         document.getElementById('prev_fim').value = fim1[0];
 
+        //Lista as opções de concluido (SIM/NÃO) para selecionar e deixa a opção do projeto já marcada
         let selec_concluido = '';
         if(button.getAttribute('data-bs-concluido')==='sim'){
           selec_concluido = `<option value="sim" selected>Sim</option><option value="nao">Não</option>`;
@@ -318,6 +316,7 @@
         }
         document.getElementById('concluido').innerHTML = selec_concluido;
 
+        //Listar os programas criados para serem selecionados. E deixa o programa atual do projeto já selecionado.
         let prog_id = button.getAttribute('data-bs-prog');
         let prog_str = '';
         array_programas.map((prog)=>{
@@ -329,9 +328,27 @@
         });
         document.getElementById('programa').innerHTML = prog_str;
 
-        listar_perfis();
+        //Coloca todos os usuários do sistema em checkbox no modal de editar.
+        list_users('checks');
+      });
+
+      // Modal de Cadastro de projetos.
+      var insert_modal = document.getElementById('modal_inserir');
+      insert_modal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+
+        //Listar os programas criados para serem selecionados.
+        let prog_str = '<option selected disabled>Selecione um programa</option>';
+        array_programas.map((prog)=>{
+            prog_str += `<option value="${prog.id}">${prog.nome}</option>`;
+        });
+        document.getElementById('programa_insert').innerHTML = prog_str;
+
+        //Coloca todos os usuários do sistema em checkbox no modal de cadastro.
+        list_users('checks_insert');
         
       });
+
     </script>
   </body>
 </html>
