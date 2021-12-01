@@ -150,6 +150,23 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async listar_projetos(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT * FROM projetos;`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async projetos_update(req, res){
     tudo_ok = true;
     resp = {};
@@ -173,6 +190,54 @@ class gestao{
     tudo_ok = true;
     resp = {};
     const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${req.body.nome}', '${req.body.programa}', '${req.body.resp}', '${req.body.objetivo}', '${req.body.inicio}', '${req.body.fim}', '${req.body.obs}', '${req.body.concluido}', 'nao');`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async categorias_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT * FROM categorias;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async pagamentos_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT * FROM formas_pagamento;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT *, CONCAT('R$', FORMAT(preco_uni, 2)) as uni, CONCAT('R$', FORMAT(preco_uni * qtd, 2)) as total FROM itens;`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 

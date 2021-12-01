@@ -16,5 +16,10 @@ routes.get('/projetos_read', gestao.projetos_read);
 routes.post('/projetos_update', gestao.projetos_update);
 routes.post('/projetos_insert', gestao.projetos_insert);
 
+routes.get('/categorias_read', gestao.categorias_read);
+routes.get('/pagamentos_read', gestao.pagamentos_read);
+routes.get('/itens_read', gestao.itens_read);
+routes.get('/listar_projetos', gestao.listar_projetos);
+
 
 module.exports = routes;

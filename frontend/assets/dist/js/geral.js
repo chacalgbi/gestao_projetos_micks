@@ -59,3 +59,59 @@ function select_users(id_div){
     const str2 = users.slice(0, -2);
     return str2;  
 }
+
+function listar_categorias(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}categorias_read`).then(function (response) {
+            //console.log(response.data);
+            resolve(response.data.dados.resposta);
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_pagamentos(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}pagamentos_read`).then(function (response) {
+            //console.log(response.data);
+            resolve(response.data.dados.resposta);
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_projetos(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}listar_projetos`).then(function (response) {
+            //console.log(response.data);
+            resolve(response.data.dados.resposta);
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_itens(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}itens_read`).then(function (response) {
+            //console.log(response.data);
+            resolve(response.data.dados.resposta);
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
