@@ -7,8 +7,6 @@ function sair(){
     }, 2000);
 }
 
-document.title = `Projetos | ${sessionStorage.nome}`;
-
 function verificar(){
     if(sessionStorage.login != "OK"){
         Swal.fire({
@@ -26,8 +24,12 @@ function listar_usuarios(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.get(`${ip}listar_usuarios`).then(function (response) {
-            //console.log(response.data);
-            resolve(response.data.dados.resposta);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -36,12 +38,29 @@ function listar_usuarios(){
     });
 }
 
-async function list_users(id_div){
+async function list_users(id_div, novo, id = 'nada'){
     let select_colaboradores = '';
     const colaboradores = await listar_usuarios();
-    colaboradores.map((item)=>{
-        select_colaboradores += `<div class="form-check"><input class="form-check-input" type="checkbox" 
-                    value="${item.nome_completo}" id="${item.nome_completo}">${item.nome_completo}</div>`;
+    let projeto;
+    if(id != 'nada'){
+        projeto = await pegar_projeto(id);
+        //console.log(projeto[0]);
+    }
+    colaboradores.map((item, index)=>{
+        if(novo === false){
+            for(let x = 0; x < projeto.length; x++){
+                const pessoas = projeto[x].responsaveis.split(", ");
+                if(pessoas.includes(item.nome_completo)){
+                    select_colaboradores += `<div class="form-check"> &nbsp&nbsp <input class="form-check-input" type="checkbox" value="${item.nome_completo}" id="${item.nome_completo}" checked>${item.nome_completo}</div>`;
+                    break;
+                }else{
+                    select_colaboradores += `<div class="form-check"> &nbsp&nbsp <input class="form-check-input" type="checkbox" value="${item.nome_completo}" id="${item.nome_completo}" >${item.nome_completo}</div>`;
+                    break;
+                }
+            }
+        }else{
+            select_colaboradores += `<div class="form-check"> &nbsp&nbsp <input class="form-check-input" type="checkbox" value="${item.nome_completo}" id="${item.nome_completo}" >${item.nome_completo}</div>`;
+        }
     });
     document.getElementById(id_div).innerHTML = select_colaboradores;
 }
@@ -64,8 +83,12 @@ function listar_categorias(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.get(`${ip}categorias_read`).then(function (response) {
-            //console.log(response.data);
-            resolve(response.data.dados.resposta);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -78,8 +101,31 @@ function listar_pagamentos(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.get(`${ip}pagamentos_read`).then(function (response) {
-            //console.log(response.data);
-            resolve(response.data.dados.resposta);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function itens_soma_por_projeto(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}itens_soma`).then(function (response) {
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                //console.log(response.data.dados.resposta);
+                resolve(response.data.dados.resposta);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -93,7 +139,31 @@ function listar_projetos(){
     return new Promise(function(resolve, reject){
         axios.get(`${ip}listar_projetos`).then(function (response) {
             //console.log(response.data);
-            resolve(response.data.dados.resposta);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function pegar_projeto(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}pegar_projeto`,{id: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -107,7 +177,12 @@ function listar_itens(){
     return new Promise(function(resolve, reject){
         axios.get(`${ip}itens_read`).then(function (response) {
             //console.log(response.data);
-            resolve(response.data.dados.resposta);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -115,3 +190,24 @@ function listar_itens(){
         });
     });
 }
+
+function listar_itens_projeto(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}itens_projeto`,{id: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+document.title = `Projetos | ${sessionStorage.nome}`;

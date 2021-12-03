@@ -10,7 +10,8 @@
     <script src="./assets/dist/js/jquery-3.6.0.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="./assets/dist/js/sweetalert2.all.min.js"></script>
-    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://unpkg.com/boxicons@2.1.0/dist/boxicons.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.0/css/boxicons.min.css' rel='stylesheet'>
     <script src="./assets/dist/js/pace.js"></script>
     <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
     <script src="./assets/dist/js/notify.js"></script>
@@ -53,7 +54,7 @@
   </head>
   <body>
     <div id="header"></div><br /><br /><br />
-    <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+    <div id="principal" class="container-fluid p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
       <div class="row d-flex justify-content-evenly">
         <div class="info col-sm-11 d-flex justify-content-evenly">
           <h1>Projetos</h1>
@@ -69,10 +70,13 @@
                <th>Programa</th>
                <th>Envolvidos</th>
                <th>Objetivo</th>
-               <th>Prev. Início</th>
-               <th>Prev. Fim</th>
+               <th>Itens</th>
+               <th>Previsão de Início</th>
+               <th>Previsão de Finalização</th>
                <th>Concluído</th>
                <th>OBS</th>
+               <th>Valor</th>
+               <th>Solicitar Aprovação</th>
                <th>Status</th>
                <th>Editar</th>
              </tr>
@@ -96,7 +100,7 @@
               <div>ID:<label id="id_"></label></div>
               <div class="input-group mb-3"><span class="input-group-text">Nome:</span><input type="text" class="form-control" id="nome"></div>
               <div class="input-group mb-3"><span class="input-group-text">Programa:</span><select class="form-control" id="programa"></select></div>
-              <div class="input-group mb-3"><span class="input-group-text">Envolvidos:</span><div id="checks"></div></div>
+              <div class="input-group mb-3">Envolvidos:&nbsp&nbsp&nbsp&nbsp<div id="checks"></div></div>
               <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">OBS:</span><textarea class="form-control" rows="3" id="obs"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">Prev. Início:</span><input type="date" class="form-control" id="prev_inicio"></div>
@@ -124,7 +128,7 @@
             <form>
               <div class="input-group mb-3"><span class="input-group-text">Nome:</span><input type="text" class="form-control" id="nome_insert"></div>
               <div class="input-group mb-3"><span class="input-group-text">Programa:</span><select class="form-control" id="programa_insert"></select></div>
-              <div class="input-group mb-3"><span class="input-group-text">Envolvidos:</span><div id="checks_insert"></div></div>
+              <div class="input-group mb-3">Envolvidos:&nbsp&nbsp&nbsp&nbsp<div id="checks_insert"></div></div>
               <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos_insert"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">OBS:</span><textarea class="form-control" rows="3" id="obs_insert"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">Prev. Início:</span><input type="date" class="form-control" id="prev_inicio_insert"></div>
@@ -146,6 +150,7 @@
     <script>
       var ip = sessionStorage.ip;
       var array_programas = [];
+      var soma_itens_projeto = [];
 
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
@@ -176,7 +181,9 @@
             });
       }
 
-      function iniciar(){
+      async function iniciar(){
+        soma_itens_projeto = await itens_soma_por_projeto();
+
         let tabela_ = document.getElementById('corpo_tabela');
         if(sessionStorage.login === "OK"){
           axios.get(`${ip}projetos_read`).then(function (response) {
@@ -188,46 +195,71 @@
                     $.notify(`${response.data.dados.resposta.length} projetos cadastrados`, "success");
                     let tabela = "";
                     response.data.dados.resposta.map((item, index, array)=>{
-                      let imagem = '';
-                      if(item.aprovado === 'nao'){
-                        imagem = 'loading.gif';
-                      }else if(item.aprovado === 'sim'){
-                        imagem = 'OK.png';
-                      }else{
-                        imagem = 'bloqueado.png';
+                      let soma = '';
+                      soma_itens_projeto.map((sum)=>{
+                        if(item.id == sum.id_projeto){
+                          soma = sum.total.replace(",", "+").replace(".", ",").replace("+", ".");
+                          //soma = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(soma);
+                          
+                        }
+                      });
+                      
+                      const pessoas = item.responsaveis.split(", ");
+                      if(pessoas.includes(sessionStorage.nome)){
+                        let imagem = '';
+                        if(item.aprovado === 'nao'){
+                          imagem = 'loading.gif';
+                        }else if(item.aprovado === 'sim'){
+                          imagem = 'OK.png';
+                        }else{
+                          imagem = 'bloqueado.png';
+                        }
+                        tabela += "<tr>";
+                          tabela += `
+                          <td>${index+1}</td>
+                          <td>${item.nome}</td>
+                          <td>${item.prog}</td>
+                          <td>${item.responsaveis}</td>
+                          <td>${item.objetivo}</td>
+                          <td><a role="button" class="btn btn-outline-info" title="Itens do Projeto" href="itens_projeto.html?id=${item.id}"><i class='bx bx-list-ul bx-md'></i></a></td>
+                          <td>${item.inicio}</td>
+                          <td>${item.fim}</td>
+                          <td>${item.concluido}</td>
+                          <td>${item.obs}</td>
+                          <td id="soma${item.id}">${soma}</td>
+                          <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao(${item.id}, ${item.prog}, ${sessionStorage.nome}, ${soma})"><i class='bx bx-dollar-circle bx-md'></i></button></td>
+                          <td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
+                          if(item.aprovado === 'sim'){
+                            tabela += `<td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>`;
+                          }else{
+                            tabela += `
+                            <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
+                              data-bs-id="${item.id}"
+                              data-bs-nome="${item.nome}"
+                              data-bs-prog="${item.programa}"
+                              data-bs-responsaveis="${item.responsaveis}"
+                              data-bs-objetivo="${item.objetivo}"
+                              data-bs-inicio="${item.previsao_inicio}"
+                              data-bs-fim="${item.previsao_fim}"
+                              data-bs-concluido="${item.concluido}"
+                              data-bs-obs="${item.obs}"
+                            ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
+                          }
+                        tabela += "</tr>";
                       }
-                      tabela += "<tr>";
-                        tabela += `
-                        <td>${index+1}</td>
-                        <td>${item.nome}</td>
-                        <td>${item.prog}</td>
-                        <td>${item.responsaveis}</td>
-                        <td>${item.objetivo}</td>
-                        <td>${item.inicio}</td>
-                        <td>${item.fim}</td>
-                        <td>${item.concluido}</td>
-                        <td>${item.obs}</td>
-                        <td><img src="./assets/img/${imagem}" width="40" height="40"></td>
-                        <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal"
-                          data-bs-id="${item.id}"
-                          data-bs-nome="${item.nome}"
-                          data-bs-prog="${item.programa}"
-                          data-bs-responsaveis="${item.responsaveis}"
-                          data-bs-objetivo="${item.objetivo}"
-                          data-bs-inicio="${item.previsao_inicio}"
-                          data-bs-fim="${item.previsao_fim}"
-                          data-bs-concluido="${item.concluido}"
-                          data-bs-obs="${item.obs}"
-                        >Editar</button></td>
-                        `;
-                      tabela += "</tr>";
                     });
                     tabela_.innerHTML = tabela;
-                  }
-                  
+                  } 
               })
               .catch(function (error) { console.log(error) });
           }
+      }
+
+      function solicitar_aprovacao(id_projeto, programa, responsavel, valor){
+        console.log(id_projeto);
+        console.log(programa);
+        console.log(responsavel);
+        console.log(valor);
       }
 
       function inserir_projeto(){
@@ -251,7 +283,7 @@
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
               }else{
                 $("#btn_inserir").notify( "Projeto cadastrado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
-                //setTimeout(function() { location.replace("projetos.html"); }, 2000);
+                setTimeout(function() { location.replace("projetos.html"); }, 2000);
               }
           })
           .catch(function (error) { console.log(error) });
@@ -329,7 +361,7 @@
         document.getElementById('programa').innerHTML = prog_str;
 
         //Coloca todos os usuários do sistema em checkbox no modal de editar.
-        list_users('checks');
+        list_users('checks', false, button.getAttribute('data-bs-id'));
       });
 
       // Modal de Cadastro de projetos.
@@ -345,7 +377,7 @@
         document.getElementById('programa_insert').innerHTML = prog_str;
 
         //Coloca todos os usuários do sistema em checkbox no modal de cadastro.
-        list_users('checks_insert');
+        list_users('checks_insert', true);
         
       });
 

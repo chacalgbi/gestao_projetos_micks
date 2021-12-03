@@ -57,10 +57,10 @@
     <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
       <div class="row d-flex justify-content-evenly">
         <div class="info col-sm-11 d-flex justify-content-evenly">
-          <h1>Itens</h1>
+          <h1 id="titulo_itens_proj">Itens</h1>
         </div>
       </div>
-      <button type="button" onclick="abrir_cadastro_item()" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Itens</button>
+      <button type="button" id="btn_cadastrar_item" onclick="abrir_cadastro_item()" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Itens</button>
       <div class="row info justify-content-center" id="info">
         <table class="table table-dark table-hover">
           <thead>
@@ -146,6 +146,10 @@
 
     <script>
       var ip = sessionStorage.ip;
+      const urlParams = new URLSearchParams(window.location.search);
+      var nome_projeto = '';
+        var myParam = urlParams.get('id');
+        if(myParam == null){ myParam = 0; }
       var array_pagamentos = [];
       var array_categorias = [];
       var array_projetos = [];
@@ -169,13 +173,15 @@
           array_pagamentos.forEach((x)=>{ if(item.forma_pagamento == x.id){ nome_pagamentos = x.forma }});
 
           let nome_projetos = "";
-          array_projetos.forEach((x)=>{
+          array_projetos.forEach((x)=>{ 
             if(item.id_projeto == x.id){
               nome_projetos = x.nome
               if(x.aprovado == 'sim'){
                 projeto_aprovado = true;
+                document.getElementById('btn_cadastrar_item').style.display = 'none';
               }
             }
+            if(x.id == myParam){ nome_projeto = x.nome; }
           });
 
           tabela += "<tr>";
@@ -210,10 +216,10 @@
                 <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado."></i></td>
               `;
             }
-
           tabela += "</tr>";
         });
         document.getElementById('corpo_tabela').innerHTML = tabela;
+        document.getElementById('titulo_itens_proj').innerHTML = `Itens - ${nome_projeto}`;
       }
 
       function abrir_cadastro_item(ao_iniciar=true){
@@ -229,7 +235,7 @@
                 select_projetos += `<option value="${item.id}">${item.nome}</option>`;
               }else{
                 select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
-              }
+              } 
             }
           });
           document.getElementById('projeto_insert').innerHTML = select_projetos;
@@ -301,24 +307,22 @@
           id_projeto: document.getElementById('projeto_edit').value,
           nome: document.getElementById('nome_edit').value,
           qtd: document.getElementById('qtd_edit').value,
-          preco_uni: parseFloat(document.getElementById('uni_edit').value).toFixed(2),
-          preco_total: parseFloat(document.getElementById('total_edit').value).toFixed(2),
+          preco_uni: document.getElementById('uni_edit').value.replace(",", "."),
+          preco_total: document.getElementById('total_edit').value,
           forma_pagamento: document.getElementById('pagamento_edit').value,
           categoria: document.getElementById('categoria_edit').value,
           obs: document.getElementById('obs_edit').value
         }
-        console.log(obj_item.preco_total);
         if(obj_item.id_projeto === '' || obj_item.nome === '' || obj_item.qtd === '' || obj_item.preco_uni === '' ||
            obj_item.preco_total === '0' || obj_item.forma_pagamento === '' || obj_item.categoria === ''){
             Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
         }else{
           axios.post(`${ip}itens_update`, obj_item).then(function (response) {
               if(response.data.erroGeral === 'sim'){
-                console.log(response.data);
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
               }else{
                 $("#btn_editar").notify( "Item alterado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
-                //setTimeout(function() { location.replace("itens.html"); }, 2000);
+                setTimeout(function() { location.replace(`itens_projeto.html?id=${myParam}`); }, 2000);
               }
           })
           .catch(function (error) {
@@ -357,7 +361,7 @@
         if(sessionStorage.login === "OK"){
           array_pagamentos = await listar_pagamentos();
           array_categorias = await listar_categorias();
-          array_itens      = await listar_itens();
+          array_itens      = await listar_itens_projeto(myParam);
           array_projetos   = await listar_projetos();
           preencher_tabela();
         }

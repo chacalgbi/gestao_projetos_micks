@@ -136,7 +136,7 @@ class gestao{
   async projetos_read(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `SELECT projetos.*, DATE_FORMAT(previsao_inicio, '%d/%m/%Y') as inicio, DATE_FORMAT(previsao_fim, '%d/%m/%Y') as fim, programa.nome AS prog FROM projetos INNER JOIN programa ON projetos.programa = programa.id;`;
+    const query = `SELECT projetos.*, DATE_FORMAT(previsao_inicio, '%d/%m/%Y') as inicio, DATE_FORMAT(previsao_fim, '%d/%m/%Y') as fim, programa.nome AS prog FROM projetos INNER JOIN programa ON projetos.programa = programa.id ORDER BY id;`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -153,7 +153,24 @@ class gestao{
   async listar_projetos(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `SELECT * FROM projetos;`;
+    const query = `SELECT * FROM projetos ORDER BY id;`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async pegar_projeto(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT * FROM projetos WHERE id='${req.body.id}';`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -237,7 +254,99 @@ class gestao{
   async itens_read(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `SELECT *, CONCAT('R$', FORMAT(preco_uni, 2)) as uni, CONCAT('R$', FORMAT(preco_uni * qtd, 2)) as total FROM itens;`;
+    const query = `SELECT *, CONCAT('R$', FORMAT(preco_uni, 2)) as uni, CONCAT('R$', FORMAT(preco_uni * qtd, 2)) as total FROM itens ORDER BY id_projeto;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_insert(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `INSERT INTO itens
+    (id_projeto, nome, qtd, preco_uni, preco_total, forma_pagamento, categoria, obs) values
+    ('${req.body.id_projeto}','${req.body.nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
+    '${req.body.forma_pagamento}','${req.body.categoria}','${req.body.obs}');`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_update(req, res){
+    tudo_ok = true;
+    resp = {};
+    console.log("String:", req.body.preco_uni, " - ", req.body.preco_total);
+    console.log("Numero:", parseFloat(req.body.preco_uni).toFixed(2), " - ", parseFloat(req.body.preco_total).toFixed(2));
+
+    const query = `UPDATE itens SET id_projeto="${req.body.id_projeto}", nome="${req.body.nome}", qtd="${req.body.qtd}", 
+    preco_uni='${req.body.preco_uni}', preco_total="${req.body.preco_total}", forma_pagamento="${req.body.forma_pagamento}", 
+    categoria="${req.body.categoria}", obs="${req.body.obs}" WHERE id="${req.body.id}";`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_soma(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT id_projeto, CONCAT(FORMAT(SUM(preco_total), 2)) AS total FROM itens GROUP BY id_projeto;`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_delete(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `DELETE FROM itens WHERE id="${req.body.id}";`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      log(erro, "erro");
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async itens_projeto(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT *, CONCAT('R$', FORMAT(preco_uni, 2)) as uni, CONCAT('R$', FORMAT(preco_uni * qtd, 2)) as total FROM itens WHERE id_projeto="${req.body.id}";`;
+
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
