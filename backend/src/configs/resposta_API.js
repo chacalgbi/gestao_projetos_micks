@@ -6,7 +6,7 @@ module.exports = function resposta_API(objeto, res, status=200, isOK=true){
         return res.status(status).json(objeto);
     }else{
         objeto.erroGeral = 'sim';
-        log(`ERRO: ${objeto.msg}`, 'erro');
+        log(objeto, 'erro');
         return res.status(status).json(objeto);
     }
 }

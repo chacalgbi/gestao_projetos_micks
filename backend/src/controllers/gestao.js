@@ -20,7 +20,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -37,7 +37,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -70,7 +70,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -89,7 +89,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -108,7 +108,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -125,7 +125,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -142,7 +142,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -159,7 +159,6 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -176,7 +175,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -187,15 +186,16 @@ class gestao{
   async projetos_update(req, res){
     tudo_ok = true;
     resp = {};
+    const obs = req.body.obs.replace(/'|"/g, "");
     const query = `UPDATE projetos SET nome="${req.body.nome}", programa="${req.body.programa}", 
     responsaveis="${req.body.resp}", objetivo="${req.body.objetivo}", previsao_inicio="${req.body.inicio}", 
-    previsao_fim="${req.body.fim}", obs="${req.body.obs}", concluido="${req.body.concluido}" WHERE id="${req.body.id}";`;
+    previsao_fim="${req.body.fim}", obs="${obs}", concluido="${req.body.concluido}" WHERE id="${req.body.id}";`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -206,12 +206,13 @@ class gestao{
   async projetos_insert(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${req.body.nome}', '${req.body.programa}', '${req.body.resp}', '${req.body.objetivo}', '${req.body.inicio}', '${req.body.fim}', '${req.body.obs}', '${req.body.concluido}', 'nao');`;
+    const obs = req.body.obs.replace(/'|"/g, "");
+    const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${req.body.nome}', '${req.body.programa}', '${req.body.resp}', '${req.body.objetivo}', '${req.body.inicio}', '${req.body.fim}', '${obs}', '${req.body.concluido}', 'nao');`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -227,7 +228,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -243,7 +244,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -259,7 +260,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -270,15 +271,15 @@ class gestao{
   async itens_insert(req, res){
     tudo_ok = true;
     resp = {};
+    const obs = req.body.obs.replace(/'|"/g, "");
     const query = `INSERT INTO itens
     (id_projeto, nome, qtd, preco_uni, preco_total, forma_pagamento, categoria, obs) values
     ('${req.body.id_projeto}','${req.body.nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
-    '${req.body.forma_pagamento}','${req.body.categoria}','${req.body.obs}');`;
+    '${req.body.forma_pagamento}','${req.body.categoria}','${obs}');`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -289,18 +290,16 @@ class gestao{
   async itens_update(req, res){
     tudo_ok = true;
     resp = {};
-    console.log("String:", req.body.preco_uni, " - ", req.body.preco_total);
-    console.log("Numero:", parseFloat(req.body.preco_uni).toFixed(2), " - ", parseFloat(req.body.preco_total).toFixed(2));
-
+    const obs = req.body.obs.replace(/'|"/g, "");
     const query = `UPDATE itens SET id_projeto="${req.body.id_projeto}", nome="${req.body.nome}", qtd="${req.body.qtd}", 
     preco_uni='${req.body.preco_uni}', preco_total="${req.body.preco_total}", forma_pagamento="${req.body.forma_pagamento}", 
-    categoria="${req.body.categoria}", obs="${req.body.obs}" WHERE id="${req.body.id}";`;
+    categoria="${req.body.categoria}", obs="${obs}" WHERE id="${req.body.id}";`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -317,7 +316,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -334,7 +333,7 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -351,7 +350,26 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      log(erro, "erro");
+      
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async inserir_aprovacao(req, res){
+    tudo_ok = true;
+    resp = {};
+    const obs_1 = req.body.obs_1;
+    const query = `INSERT INTO aprovacao
+    (projeto, programa, responsavel, valor, hora_solicitacao, obs_1, status) values
+    ('${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','pendente');`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
       tudo_ok = false;
       resp.msg = erro;      
     });

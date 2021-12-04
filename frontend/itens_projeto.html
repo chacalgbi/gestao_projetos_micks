@@ -156,8 +156,8 @@
       var array_itens = [];
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
-        $('#uni_insert').mask('000.000.000.000.000,00', {reverse: true});
-        $('#uni_edit').mask('000.000.000.000.000,00', {reverse: true});
+        //$('#uni_insert').mask('000.000.000.000.000,00', {reverse: true});
+        //$('#uni_edit').mask('000.000.000.000.000,00', {reverse: true});
         verificar();
       });
 
@@ -190,8 +190,8 @@
             <td>${item.nome}</td>
             <td>${nome_projetos}</td>
             <td>${item.qtd}</td>
-            <td>${item.uni}</td>
-            <td>${item.total}</td>
+            <td>${item.uni.replace(",","+").replace(".",",").replace("+",".")}</td>
+            <td>${item.total.replace(",","+").replace(".",",").replace("+",".")}</td>
             <td>${nome_pagamentos}</td>
             <td>${nome_categoria}</td>
             <td>${item.obs}</td>`;
@@ -259,10 +259,11 @@
 
       function calcular_total_parcial(nome_id='insert'){
         let qtd  = parseFloat(document.getElementById(`qtd_${nome_id}`).value);
-        let unit = parseFloat(document.getElementById(`uni_${nome_id}`).value.replace(".","").replace(",","."));
+        let unit = parseFloat(document.getElementById(`uni_${nome_id}`).value.replace(",","."));
         let total = (qtd * unit).toFixed(2);
         document.getElementById(`total_${nome_id}`).value = total;
         document.getElementById(`projeto_${nome_id}`).focus();
+        document.getElementById(`uni_${nome_id}`).value = unit;
       }
 
       function salvar_item(){
@@ -270,7 +271,7 @@
           id_projeto: document.getElementById('projeto_insert').value,
           nome: document.getElementById('nome_insert').value,
           qtd: document.getElementById('qtd_insert').value,
-          preco_uni: document.getElementById('uni_insert').value.replace(",", "."),
+          preco_uni: document.getElementById('uni_insert').value,
           preco_total: document.getElementById('total_insert').value,
           forma_pagamento: document.getElementById('pagamento_insert').value,
           categoria: document.getElementById('categoria_insert').value,
@@ -307,7 +308,7 @@
           id_projeto: document.getElementById('projeto_edit').value,
           nome: document.getElementById('nome_edit').value,
           qtd: document.getElementById('qtd_edit').value,
-          preco_uni: document.getElementById('uni_edit').value.replace(",", "."),
+          preco_uni: document.getElementById('uni_edit').value,
           preco_total: document.getElementById('total_edit').value,
           forma_pagamento: document.getElementById('pagamento_edit').value,
           categoria: document.getElementById('categoria_edit').value,

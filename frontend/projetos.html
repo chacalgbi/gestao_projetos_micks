@@ -75,7 +75,7 @@
                <th>Previsão de Finalização</th>
                <th>Concluído</th>
                <th>OBS</th>
-               <th>Valor</th>
+               <th>Valor do Projeto</th>
                <th>Solicitar Aprovação</th>
                <th>Status</th>
                <th>Editar</th>
@@ -226,8 +226,8 @@
                           <td>${item.fim}</td>
                           <td>${item.concluido}</td>
                           <td>${item.obs}</td>
-                          <td id="soma${item.id}">${soma}</td>
-                          <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao(${item.id}, ${item.prog}, ${sessionStorage.nome}, ${soma})"><i class='bx bx-dollar-circle bx-md'></i></button></td>
+                          <td>R$ ${soma}</td>
+                          <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
                           <td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
                           if(item.aprovado === 'sim'){
                             tabela += `<td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>`;
@@ -255,11 +255,51 @@
           }
       }
 
-      function solicitar_aprovacao(id_projeto, programa, responsavel, valor){
-        console.log(id_projeto);
-        console.log(programa);
-        console.log(responsavel);
-        console.log(valor);
+      function solicitar_aprovacao(projeto, programa, responsavel, valor){
+        Swal.fire({
+          title: `Deseja envia o projeto "${projeto}" para aprovação?`,
+          text: "Será enviada uma mensagem no grupo do Telegram para o CEO e o Dep. Financeiro.",
+          icon: 'info',
+          input: 'textarea',
+          inputLabel: 'Observação',
+          inputPlaceholder: 'Coloque alguma observação relevante...',
+          inputAttributes: { 'aria-label': 'Coloque alguma observação relevante' },
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'SIM',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            let obj_aprovacao = {
+              projeto: projeto,
+              programa: programa,
+              responsavel: responsavel,
+              valor: valor,
+              obs_1: result.value
+            }
+
+            axios.post(`${ip}inserir_aprovacao`, obj_aprovacao).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
+                  console.log(response.data.msg.resposta);
+                }else{
+                  Swal.fire({ icon: 'success', title: 'Aprovação enviada!', text: `Com ${response.data.msg}` });
+                }
+            })
+            .catch(function (error) {
+              console.log("Deu erro");
+              console.log(error);
+              Swal.fire( 'Erro!', `${error}`, 'error' );
+            });
+          }else{
+            Swal.fire(
+              'Cancelado!',
+              'O envio do projeto foi cancelado.',
+              'success'
+            )
+          }
+        })
       }
 
       function inserir_projeto(){

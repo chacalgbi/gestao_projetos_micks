@@ -27,4 +27,6 @@ routes.post('/itens_update', gestao.itens_update);
 routes.post('/itens_delete', gestao.itens_delete);
 routes.get('/itens_soma', gestao.itens_soma);
 
+routes.post('/inserir_aprovacao', gestao.inserir_aprovacao);
+
 module.exports = routes;
