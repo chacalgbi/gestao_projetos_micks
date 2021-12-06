@@ -62,7 +62,7 @@
       </div>
       <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Projeto</button>
       <div class="row info justify-content-center" id="info">
-        <table class="table table-dark table-hover">
+        <table class="table table-dark table-striped table-hover">
           <thead>
              <tr>
                <th>#</th>
@@ -76,8 +76,8 @@
                <th>Concluído</th>
                <th>OBS</th>
                <th>Valor do Projeto</th>
-               <th>Solicitar Aprovação</th>
                <th>Status</th>
+               <th>Solicitar Aprovação</th>
                <th>Editar</th>
              </tr>
           </thead>
@@ -205,7 +205,7 @@
                       });
                       
                       const pessoas = item.responsaveis.split(", ");
-                      if(pessoas.includes(sessionStorage.nome)){
+                      if(pessoas.includes(sessionStorage.nome) || sessionStorage.nivel === 'Financeiro'){
                         let imagem = '';
                         if(item.aprovado === 'nao'){
                           imagem = 'loading.gif';
@@ -227,12 +227,15 @@
                           <td>${item.concluido}</td>
                           <td>${item.obs}</td>
                           <td>R$ ${soma}</td>
-                          <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
                           <td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
                           if(item.aprovado === 'sim'){
-                            tabela += `<td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>`;
+                            tabela += `
+                            <td>Aprovado</td>
+                            <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>
+                            `;
                           }else{
                             tabela += `
+                            <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
                             <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
                               data-bs-id="${item.id}"
                               data-bs-nome="${item.nome}"
@@ -285,6 +288,13 @@
                   console.log(response.data.msg.resposta);
                 }else{
                   Swal.fire({ icon: 'success', title: 'Aprovação enviada!', text: `Com ${response.data.msg}` });
+                  // Envia Mensagem via telegram pedido a aprovaçao do projeto.
+                  const obj_msg = {msg: `${responsavel} enviou o projeto ${projeto} no valor de R$${valor} para aprovação!`}
+                  axios.post(`${ip}telegram`, obj_msg).then(function (response) { 
+                    Swal.fire({ icon: 'success', title: 'Solicitação de aprovação enviada no grupo do Telegram!', text: `${obj_msg.msg}` });
+                  }).catch(function (error) {
+                    Swal.fire({ icon: 'error', title: 'Opa! Erro ao enviar mensagem no telegram', text: `${response.data.msg.resposta}` });
+                  });
                 }
             })
             .catch(function (error) {

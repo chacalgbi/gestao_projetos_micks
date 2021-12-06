@@ -97,6 +97,24 @@ function listar_categorias(){
     });
 }
 
+function listar_aprovacao(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}listar_aprovacao`).then(function (response) {
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
 function listar_pagamentos(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
@@ -176,6 +194,25 @@ function listar_itens(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.get(`${ip}itens_read`).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_programas(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}programa_read`).then(function (response) {
             //console.log(response.data);
             if(response.data.erroGeral == "sim"){
                 Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });

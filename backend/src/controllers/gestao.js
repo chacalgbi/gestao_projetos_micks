@@ -364,9 +364,50 @@ class gestao{
     const obs_1 = req.body.obs_1;
     const query = `INSERT INTO aprovacao
     (projeto, programa, responsavel, valor, hora_solicitacao, obs_1, status) values
-    ('${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','pendente');`;
+    ('${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','Pendente');`;
 
     await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async listar_aprovacao(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT *, DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora1, DATE_FORMAT(hora_aprovacao, '%d/%m/%Y %H:%i') as hora2 FROM aprovacao;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async update_aprovacao(req, res){
+    tudo_ok = true;
+    resp = {};
+    const obs = req.body.obs_2.replace(/'|"/g, "");
+
+    const query1 = `UPDATE aprovacao SET quem_aprovou='${req.body.quem_aprovou}', obs_2='${obs}', hora_aprovacao=NOW(), status='Aprovado' WHERE id="${req.body.id}";`;
+    await BD(query1).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    const query2 = `UPDATE projetos SET aprovado="sim" WHERE id="${req.body.id}";`;
+    await BD(query2).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{

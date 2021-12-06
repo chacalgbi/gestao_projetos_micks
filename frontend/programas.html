@@ -62,7 +62,7 @@
       </div>
       <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Inserir Programa</button>
       <div class="row info justify-content-center" id="info">
-        <table class="table table-dark table-hover">
+        <table class="table table-dark table-striped table-hover">
           <thead>
              <tr>
                <th>#</th>
@@ -212,6 +212,13 @@
               //console.log(response.data.dados.resposta);
               //$.notify(`Programa Inserido`, "success");
               $("#btn_inserir").notify( "Programa cadastrado com sucesso!", { position:'botton right', className:'success', autoHideDelay:2000 });
+              // Envia Mensagem via telegram pedido a aprovaçao do projeto.
+              const obj_msg = {msg: `${sessionStorage.nome} criou o Programa ${nome}.`}
+              axios.post(`${ip}telegram`, obj_msg).then(function (response) {
+                Swal.fire({ icon: 'success', title: 'Programa enviado no grupo do Telegram!', text: `${obj_msg.msg}` });
+              }).catch(function (error) {
+                Swal.fire({ icon: 'error', title: 'Opa! Erro ao enviar mensagem no telegram', text: `${response.data.msg.resposta}` });
+              });
               setTimeout(function() { location.replace("programas.html"); }, 2000);
             }
           })
