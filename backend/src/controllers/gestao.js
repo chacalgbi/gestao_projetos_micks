@@ -418,5 +418,85 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async gasto_insert(req, res){
+    tudo_ok = true;
+    resp = {};
+    const obs = req.body.obs.replace(/'|"/g, "");
+
+    const query = `INSERT INTO gastos
+    (id_programa, id_projeto, id_item, solicitante, valor, aprovado, hora_solicitacao, obs, data_retirada) values
+    ('${req.body.id_programa}', '${req.body.id_projeto}', '${req.body.id_item}', '${req.body.solicitante}',
+    '${req.body.valor}', 'nao', NOW(), '${obs}', '${req.body.data_retirada}');`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gasto_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT gastos.*, 
+    DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora, 
+    DATE_FORMAT(data_retirada, '%d/%m/%Y') as data1, 
+    FORMAT(valor, 2, 'pt_BR') as reais, 
+    programa.nome AS prog, 
+    projetos.nome AS proj, 
+    itens.nome AS item 
+    FROM gastos 
+    INNER JOIN programa ON gastos.id_programa = programa.id 
+    INNER JOIN projetos ON gastos.id_projeto = projetos.id 
+    INNER JOIN itens ON gastos.id_item = itens.id;`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gasto_update(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query = `UPDATE gastos SET aprovado='sim' WHERE id="${req.body.id}";`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gasto_soma(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT gastos.total_gastos, itens.total_itens FROM 
+  (SELECT SUM(valor) AS total_gastos FROM gastos WHERE id_projeto='${req.body.id_projeto}') as gastos,
+  (SELECT SUM(preco_total) AS total_itens FROM itens WHERE id_projeto='${req.body.id_projeto}') as itens;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
 }
 module.exports = new gestao();

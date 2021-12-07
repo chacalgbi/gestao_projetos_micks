@@ -31,4 +31,9 @@ routes.post('/inserir_aprovacao', gestao.inserir_aprovacao);
 routes.get('/listar_aprovacao', gestao.listar_aprovacao);
 routes.post('/update_aprovacao', gestao.update_aprovacao);
 
+routes.post('/gasto_insert', gestao.gasto_insert);
+routes.post('/gasto_update', gestao.gasto_update);
+routes.post('/gasto_soma', gestao.gasto_soma);
+routes.get('/gasto_read', gestao.gasto_read);
+
 module.exports = routes;

@@ -247,4 +247,42 @@ function listar_itens_projeto(id){
     });
 }
 
+function gasto_soma(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}gasto_soma`,{id_projeto: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_gastos(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}gasto_read`).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
 document.title = `Projetos | ${sessionStorage.nome}`;
