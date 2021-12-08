@@ -234,19 +234,26 @@
                             <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>
                             `;
                           }else{
-                            tabela += `
-                            <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
-                            <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
-                              data-bs-id="${item.id}"
-                              data-bs-nome="${item.nome}"
-                              data-bs-prog="${item.programa}"
-                              data-bs-responsaveis="${item.responsaveis}"
-                              data-bs-objetivo="${item.objetivo}"
-                              data-bs-inicio="${item.previsao_inicio}"
-                              data-bs-fim="${item.previsao_fim}"
-                              data-bs-concluido="${item.concluido}"
-                              data-bs-obs="${item.obs}"
-                            ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
+                            if(sessionStorage.nivel === "Financeiro"){
+                              tabela += `
+                              <td title="Reservado para o pessoal dos Projetos"><i class='bx bx-message-x bx-md'></i></td>
+                              <td title="Reservado para o pessoal dos Projetos"><i class='bx bx-message-rounded-x bx-md'></i></td>
+                              `;
+                            }else{
+                              tabela += `
+                              <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.id}', '${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
+                              <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
+                                data-bs-id="${item.id}"
+                                data-bs-nome="${item.nome}"
+                                data-bs-prog="${item.programa}"
+                                data-bs-responsaveis="${item.responsaveis}"
+                                data-bs-objetivo="${item.objetivo}"
+                                data-bs-inicio="${item.previsao_inicio}"
+                                data-bs-fim="${item.previsao_fim}"
+                                data-bs-concluido="${item.concluido}"
+                                data-bs-obs="${item.obs}"
+                              ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
+                            }
                           }
                         tabela += "</tr>";
                       }
@@ -258,7 +265,7 @@
           }
       }
 
-      function solicitar_aprovacao(projeto, programa, responsavel, valor){
+      function solicitar_aprovacao(id_projeto, projeto, programa, responsavel, valor){
         Swal.fire({
           title: `Deseja envia o projeto "${projeto}" para aprovação?`,
           text: "Será enviada uma mensagem no grupo do Telegram para o CEO e o Dep. Financeiro.",
@@ -275,13 +282,14 @@
         }).then((result) => {
           if (result.isConfirmed) {
             let obj_aprovacao = {
+              id_projeto: id_projeto,
               projeto: projeto,
               programa: programa,
               responsavel: responsavel,
               valor: valor,
               obs_1: result.value
             }
-
+            //console.log(obj_aprovacao);
             axios.post(`${ip}inserir_aprovacao`, obj_aprovacao).then(function (response) {
                 if(response.data.erroGeral === 'sim'){
                   Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });

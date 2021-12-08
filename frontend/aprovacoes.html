@@ -98,7 +98,7 @@
 
       async function iniciar(){
         array_aprovacao = await listar_aprovacao();
-        //console.log(array_aprovacao);
+        console.log(array_aprovacao);
         let tabela = "";
         array_aprovacao.map((item, index, array)=>{
           tabela += "<tr>";
@@ -118,7 +118,7 @@
               }
               else{
                 if(sessionStorage.nivel === 'Financeiro'){
-                  tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Projeto" onclick="aprovar('${item.projeto}', '${item.id}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                  tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Projeto" onclick="aprovar('${item.projeto}', '${item.id_projeto}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
                 }else{
                   tabela += `<td>Reservado ao Financeiro</td>`;
                 }
@@ -128,7 +128,7 @@
         document.getElementById('corpo_tabela').innerHTML = tabela;
       }
 
-      function aprovar(projeto, id, nome, valor){
+      function aprovar(projeto, id_projeto, nome, valor){
         Swal.fire({
           title: `Deseja APROVAR o projeto "${projeto}"?`,
           text: "A partir deste momento os responsáveis irão solicitar gastos para o projeto.",
@@ -145,7 +145,7 @@
         }).then((result) => {
           if (result.isConfirmed) {
             let obj_aprovar = {
-              id: id,
+              id: id_projeto,
               quem_aprovou: nome,
               obs_2: result.value
             }

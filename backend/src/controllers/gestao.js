@@ -83,7 +83,12 @@ class gestao{
     const obs = req.body.obs.replace(/'|"/g, "");
     tudo_ok = true;
     resp = {};
-    const query = `INSERT INTO programa (nome, obs) values ("${nome}", "${obs}");`;
+    let query = "";
+    if(req.body.mes === '-01'){
+      query = `INSERT INTO programa (nome, obs) values ("${nome}", "${obs}");`;
+    }else{
+      query = `INSERT INTO programa (nome, mes_ano, obs) values ("${nome}", "${req.body.mes}", "${obs}");`;
+    }
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -363,8 +368,8 @@ class gestao{
     resp = {};
     const obs_1 = req.body.obs_1;
     const query = `INSERT INTO aprovacao
-    (projeto, programa, responsavel, valor, hora_solicitacao, obs_1, status) values
-    ('${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','Pendente');`;
+    (id_projeto, projeto, programa, responsavel, valor, hora_solicitacao, obs_1, status) values
+    ('${req.body.id_projeto}','${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','Pendente');`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;

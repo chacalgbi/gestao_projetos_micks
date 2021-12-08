@@ -122,8 +122,19 @@
           <div class="modal-body modais">
             <form>
               <div class="mb-3">
+                <label class="col-form-label">Programa Mensal?</label>
+                <select class="form-control" id="mensal_insert" onchange="verificar_tipo_programa()">
+                  <option value="nao" selected>Não</option>'
+                  <option value="sim">Sim</option>'
+                </select>
+              </div>
+              <div class="mb-3">
                 <label class="col-form-label">Nome:</label>
                 <input type="text" class="form-control" id="nome_insert">
+              </div>
+              <div class="mb-3" id="div_mes" style="display: none">
+                <label class="col-form-label">Mês/Ano:</label>
+                <input type="month" class="form-control" id="mes_insert" onchange="alterar_nome()">
               </div>
               <div class="mb-3">
                 <labelclass="col-form-label">OBS:</label>
@@ -144,10 +155,48 @@
 
     <script>
       var ip = sessionStorage.ip;
+      var tipo_programa = '';
+
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
         verificar();
       });
+
+      function verificar_tipo_programa(){
+        tipo_programa = document.getElementById('mensal_insert').value;
+        if(tipo_programa == 'sim'){
+          document.getElementById(`nome_insert`).value = "Planejamento Estratégico";
+          document.getElementById(`mes_insert`).focus();
+          document.getElementById(`div_mes`).style.display = "block";
+          $('#nome_insert').attr("disabled", true);
+        }else{
+          document.getElementById(`nome_insert`).value = "";
+          document.getElementById(`div_mes`).style.display = "none";
+          document.getElementById(`nome_insert`).focus();
+          $('#nome_insert').attr("disabled", false);
+        }
+      }
+
+      function alterar_nome(){
+        if(tipo_programa === 'sim'){
+          let data = document.getElementById('mes_insert').value.split('-');
+          let mes = '';
+               if(data[1]=='01'){mes = 'Janeiro'}
+          else if(data[1]=='02'){mes = 'Fevereiro'}
+          else if(data[1]=='03'){mes = 'Março'}
+          else if(data[1]=='04'){mes = 'Abril'}
+          else if(data[1]=='05'){mes = 'Maio'}
+          else if(data[1]=='06'){mes = 'Junho'}
+          else if(data[1]=='07'){mes = 'Julho'}
+          else if(data[1]=='08'){mes = 'Agosto'}
+          else if(data[1]=='09'){mes = 'Setembro'}
+          else if(data[1]=='10'){mes = 'Outubro'}
+          else if(data[1]=='11'){mes = 'Novembro'}
+          else if(data[1]=='12'){mes = 'Dezembro'}
+
+          document.getElementById(`nome_insert`).value = "Planejamento Estratégico - " + mes + " de " + data[0];
+        }
+      }
 
       function iniciar(){
         let tabela_ = document.getElementById('corpo_tabela');
@@ -202,10 +251,14 @@
       function inserir(){
         const nome = document.getElementById('nome_insert').value;
         const obs = document.getElementById('obs_insert').value;
+        const mes = document.getElementById('mes_insert').value + '-01';
+        console.log(mes);
+        
         if(nome === ''){
           Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha o campo nome do programa!' });
         }else{
-          axios.post(`${ip}programa_insert`,{nome, obs}).then(function (response) {
+
+          axios.post(`${ip}programa_insert`,{nome, obs, mes}).then(function (response) {
             if(response.data.erroGeral === 'sim'){
               Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
             }else{
@@ -223,7 +276,9 @@
             }
           })
           .catch(function (error) { console.log(error) });
+
         }
+
       }
 
       function deletar(id){
