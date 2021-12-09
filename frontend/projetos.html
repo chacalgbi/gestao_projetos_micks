@@ -231,7 +231,12 @@
                           if(item.aprovado === 'sim'){
                             tabela += `
                             <td>Aprovado</td>
-                            <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado."></i></td>
+                            <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado." style='color: #f36e6e	'></i></td>
+                            `;
+                          }else if(item.aprovado === 'pend'){
+                            tabela += `
+                            <td>Pendente de Aprovação</td>
+                            <td><i class='bx bx-filter-alt bx-md' title="Não é possível editar um projeto pendente de aprovação" style='color: #FFEB47'></i></td>
                             `;
                           }else{
                             if(sessionStorage.nivel === "Financeiro"){

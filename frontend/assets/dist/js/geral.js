@@ -190,6 +190,25 @@ function pegar_projeto(id){
     });
 }
 
+function pegar_projetos_por_programa(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}pegar_projetos_por_programa`,{id: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
 function listar_itens(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
@@ -251,6 +270,25 @@ function gasto_soma(id){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.post(`${ip}gasto_soma`,{id_projeto: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function gastos_por_projeto(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}gastos_por_projeto`,{id: id}).then(function (response) {
             //console.log(response.data);
             if(response.data.erroGeral == "sim"){
                 Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });

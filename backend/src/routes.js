@@ -19,6 +19,7 @@ routes.get('/projetos_read', gestao.projetos_read);
 routes.post('/projetos_update', gestao.projetos_update);
 routes.post('/projetos_insert', gestao.projetos_insert);
 routes.post('/pegar_projeto', gestao.pegar_projeto);
+routes.post('/pegar_projetos_por_programa', gestao.pegar_projetos_por_programa);
 
 routes.get('/itens_read', gestao.itens_read);
 routes.post('/itens_projeto', gestao.itens_projeto);
@@ -35,5 +36,6 @@ routes.post('/gasto_insert', gestao.gasto_insert);
 routes.post('/gasto_update', gestao.gasto_update);
 routes.post('/gasto_soma', gestao.gasto_soma);
 routes.get('/gasto_read', gestao.gasto_read);
+routes.post('/gastos_por_projeto', gestao.gastos_por_projeto);
 
 module.exports = routes;

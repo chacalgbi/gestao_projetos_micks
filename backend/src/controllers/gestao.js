@@ -70,7 +70,6 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      
       tudo_ok = false;
       resp.msg = erro;      
     });
@@ -188,6 +187,23 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async pegar_projetos_por_programa(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT * FROM projetos WHERE programa='${req.body.id}';`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async projetos_update(req, res){
     tudo_ok = true;
     resp = {};
@@ -277,10 +293,12 @@ class gestao{
     tudo_ok = true;
     resp = {};
     const obs = req.body.obs.replace(/'|"/g, "");
+    
     const query = `INSERT INTO itens
     (id_projeto, nome, qtd, preco_uni, preco_total, forma_pagamento, categoria, obs) values
     ('${req.body.id_projeto}','${req.body.nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
     '${req.body.forma_pagamento}','${req.body.categoria}','${obs}');`;
+
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
@@ -379,13 +397,23 @@ class gestao{
       resp.msg = erro;      
     });
 
+    const query1 = `UPDATE projetos SET aprovado="pend" WHERE id="${req.body.id_projeto}";`;
+
+    await BD(query1).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
     API(resp, res, 200, tudo_ok);
   }
 
   async listar_aprovacao(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `SELECT *, DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora1, DATE_FORMAT(hora_aprovacao, '%d/%m/%Y %H:%i') as hora2 FROM aprovacao;`;
+    const query = `SELECT *, DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora1, DATE_FORMAT(hora_aprovacao, '%d/%m/%Y %H:%i') as hora2 FROM aprovacao ORDER BY status DESC;`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
@@ -457,9 +485,11 @@ class gestao{
     FROM gastos 
     INNER JOIN programa ON gastos.id_programa = programa.id 
     INNER JOIN projetos ON gastos.id_projeto = projetos.id 
-    INNER JOIN itens ON gastos.id_item = itens.id;`;
+    INNER JOIN itens ON gastos.id_item = itens.id
+    ORDER BY aprovado, hora_solicitacao DESC;
+    `;
 
-    await BD(query).then((ok)=>{
+    await BD(query).then((ok)=>{  
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
@@ -490,8 +520,38 @@ class gestao{
     tudo_ok = true;
     resp = {};
     const query = `SELECT gastos.total_gastos, itens.total_itens FROM 
-  (SELECT SUM(valor) AS total_gastos FROM gastos WHERE id_projeto='${req.body.id_projeto}') as gastos,
+  (SELECT SUM(valor) AS total_gastos FROM gastos WHERE id_projeto='${req.body.id_projeto}' AND aprovado='sim') as gastos,
   (SELECT SUM(preco_total) AS total_itens FROM itens WHERE id_projeto='${req.body.id_projeto}') as itens;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gastos_por_projeto(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query = `
+    SELECT gt.*, 
+    DATE_FORMAT(gt.hora_solicitacao, '%d/%m/%Y %H:%i') as hora, 
+    DATE_FORMAT(gt.data_retirada, '%d/%m/%Y') as data1, 
+    FORMAT(gt.valor, 2, 'pt_BR') as reais, 
+    pg.nome AS prog, 
+    pj.nome AS proj, 
+    it.nome AS item 
+    FROM gastos gt
+    INNER JOIN programa pg ON gt.id_programa = pg.id 
+    INNER JOIN projetos pj ON gt.id_projeto = pj.id 
+    INNER JOIN itens it ON gt.id_item = it.id
+    WHERE gt.id_projeto='${req.body.id}';
+    `;
+
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 

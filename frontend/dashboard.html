@@ -46,27 +46,28 @@
     <br />
     <div id="principal" class="container-fluid p-4 mb-2 text-white border border-secondary" style="border-radius: 20px;">
 
-      <div class="info">
+      <div class="info" id="div_info" style="display: none;">
         <div class="row">
-          <div class="col-sm-3"><h4 id="programa_nome">Cidade X</h4></div>
-          <div class="col-sm-5"><div class="progress" id="programa_progresso"><div class="progress-bar bg-primary" id="progress_parcial" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">35%</div></div></div>
-          <div class="col-sm-3" id="programa_total">Total: R$2.450.120,12</div>
+          <div class="col-sm-3"><h4 id="programa_nome"></h4></div>
+          <div class="col-sm-5"><div class="progress" id="programa_progresso" style="height: 30px;"></div></div>
+          <div class="col-sm-3" id="programa_total"></div>
         </div>
-        <table class="table table-dark table-hover table-striped">
+        <table class="table table-dark table-hover table-striped ">
          <thead>
             <tr>
               <th>Projeto</th>
               <th>Responsáveis</th>
-              <th>Valor Total</th>
+              <th>Total</th>
               <th>Gasto</th>
-              <th>Detalhar Itens</th>
+              <th>Disponível</th>
+              <th>Itens</th>
               <th>Solicitar</th>
               <th>Status</th>
-              <th>Solicitações</th>
-              <th>Progresso</th>
+              <th>Listar Gastos</th>
+              <th>Progresso do Projeto</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="corpo_tabela">
 
           </tbody>
         </table>
@@ -82,10 +83,127 @@
       $(document).ready( function ($){
         verificar();
       });
+      var ip = sessionStorage.ip;
       var array_programas = [];
+      var array_projetos = [];
+      var array_gastos = [];
 
-      function programa_buscar(id){
-        console.log(id);
+      async function programa_buscar(id){
+        array_gastos = [];
+        array_projetos = [];
+        const nome_do_programa = $('#programa_selecionar').find(":selected").text()
+        document.getElementById('programa_nome').innerHTML = nome_do_programa;
+        array_projetos = await pegar_projetos_por_programa(id);
+        for (const [index, projeto] of array_projetos.entries()) {
+          let gastos = await gasto_soma(projeto.id);
+          array_gastos.push(gastos);
+        }
+        //console.log(array_gastos);
+        popular_tabela();
+      }
+
+      function popular_tabela(){
+        let tabela = '';
+        let prog_total = 0;
+        let prog_gasto = 0;
+
+        array_projetos.map((item, index)=>{
+          let imagem = '';
+
+          let temp1 = parseFloat(array_gastos[index][0].total_itens);
+          let temp2 = parseFloat(array_gastos[index][0].total_gastos);
+
+          if(item.aprovado === 'sim'){
+            temp1 ? prog_total += temp1 : prog_total += 0;
+            temp2 ? prog_gasto += temp2 : prog_gasto += 0;
+          }
+
+          
+
+          
+
+          let valor_total = temp1;
+          valor_total = valor_total ? valor_total : 0;
+
+          let valor_gasto = temp2;
+          valor_gasto = valor_gasto ? valor_gasto : 0;
+
+          let saldo_disponivel = valor_total - valor_gasto;
+
+          let porcent = parseFloat((valor_gasto * 100) / valor_total).toFixed(1);
+          porcent = porcent ? porcent : 0;
+
+          let cor_barra = '';
+          if(porcent <= 50){
+            cor_barra = 'success';
+          }else if(porcent > 50 && porcent <= 70){
+            cor_barra = 'primary';
+          }else if(porcent > 70 && porcent <= 90){
+            cor_barra = 'warning';
+          }else{
+            cor_barra = 'danger';
+          }
+          
+          if(item.aprovado === 'nao'){
+            saldo_disponivel = 0;
+            imagem = 'loading.gif';
+          }else if(item.aprovado === 'sim'){
+            imagem = 'OK.png';
+          }else{
+            imagem = 'bloqueado.png';
+          }
+
+          const pessoas = item.responsaveis.split(", ");
+          if(pessoas.includes(sessionStorage.nome) || sessionStorage.nivel === 'Financeiro'){
+
+              tabela += "<tr>";
+                tabela += `<td>${item.nome}</td>`;
+                tabela += `<td>${item.responsaveis}</td>`;
+                tabela += `<td>${valor_total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;
+                tabela += `<td>${valor_gasto.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;   
+                tabela += `<td>${saldo_disponivel.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;      
+                tabela += `<td><a role="button" class="btn btn-outline-info" title="Itens do Projeto" href="itens_projeto.html?id=${item.id}"><i class='bx bx-list-ul bx-md'></i></a></td>`;
+                if(valor_gasto >= valor_total || item.aprovado === 'nao'){
+                  tabela += `<td class="text-center"><i class='bx bxs-x-circle bx-md' title="Projeto Bloqueado! Não pode solicitar gastos para ele" style="color: red"></i></td>`;
+                }else{
+                  tabela += `<td class="text-center"><a role="button" class="btn btn-outline-warning" title="Solicitar Gasto para o Projeto" href="gastos.html"><i class='bx bx-dollar bx-md'></i></a></td>`;
+                }
+                tabela += `<td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
+
+                tabela += `<td><a role="button" class="btn btn-outline-danger" title="Gastos solicitados para o projeto ${item.nome.toUpperCase()}" href="gastos_proj.html?id=${item.id}"><i class='bx bx-line-chart bx-md'></i></a></td>`;
+                tabela += `<td>${porcent}%
+                  <div class="progress" style="height: 30px;">
+                    <div class="progress-bar progress-bar-striped bg-${cor_barra} progress-bar-animated" role="progressbar" style="width: ${porcent}%;" aria-valuenow="${porcent}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                          </td>`;
+              tabela += "</tr>";
+
+          }
+        });
+       
+        let prog_porcent = parseFloat((prog_gasto * 100) / prog_total);
+
+        prog_porcent = prog_porcent ? prog_porcent : 0; // Se for NaN coloca como 0
+        prog_porcent != 0 ? prog_porcent = prog_porcent.toFixed(1) : prog_porcent; // Se for diferente de zero fixa 1 casa decimal.
+
+        let cor_barra_prog = '';
+        if(prog_porcent <= 50){
+          cor_barra_prog = 'success';
+        }else if(prog_porcent > 50 && prog_porcent <= 70){
+          cor_barra_prog = 'primary';
+        }else if(prog_porcent > 70 && prog_porcent <= 90){
+          cor_barra_prog = 'warning';
+        }else{
+          cor_barra_prog = 'danger';
+        }
+
+        let barra_progress = `<div class="progress-bar bg-${cor_barra_prog}" id="progress_parcial" role="progressbar" style="width: ${prog_porcent}%" aria-valuenow="${prog_porcent}" aria-valuemin="0" aria-valuemax="100">${prog_porcent}%</div>`;
+        let real = prog_total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2});
+
+        document.getElementById('corpo_tabela').innerHTML = tabela;
+        document.getElementById('programa_progresso').innerHTML = barra_progress;
+        document.getElementById('programa_total').innerHTML = `Total: ${real}`;
+        document.getElementById('div_info').style.display = 'block';
       }
 
       async function iniciar(){

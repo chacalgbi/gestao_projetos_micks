@@ -70,7 +70,7 @@
     </div>
     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
       data-bs-target="#solicitar_gastos">Solicitar Gasto</button>
-    <div class="row info justify-content-center" id="info" style="display: none;">
+    <div class="row info justify-content-center" id="info">
       <table class="table table-dark table-striped table-hover">
         <thead>
           <tr>
@@ -132,6 +132,9 @@
   <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./assets/dist/js/geral.js"></script>
   <script>
+    const urlParams = new URLSearchParams(window.location.search);
+      var myParam = urlParams.get('id');
+      if(myParam == null){ myParam = 0; }
     var ip = sessionStorage.ip;
     var array_programas = [];
     var array_projetos = [];
@@ -159,14 +162,11 @@
 
     function modal_add_projetos(id) {
       let str = '<option selected disabled>Selecione um Projeto</option>';
-
       array_projetos.map((item, index) => {
-        const pessoas = item.responsaveis.split(", ");
-        if (pessoas.includes(sessionStorage.nome) && item.programa === id && item.aprovado === 'sim') {
+        if (item.programa === id && item.aprovado === 'sim') {
           str += `<option value="${item.id}">${item.nome}</option>`;
         }
       });
-      
       document.getElementById('projeto_insert').innerHTML = str;
     }
 
@@ -272,7 +272,7 @@
             tabela += `<td>${item.data1}</td>`;
             if(sessionStorage.nivel === 'Financeiro'){
               if(item.aprovado == 'sim'){
-                tabela += `<td title="${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} Aprovado para o Projeto ${item.proj.toUpperCase()}"><i class='bx bx-check-shield bx-lg' style='color: Lime'></i></td>`;
+                tabela += `<td title="Gasto Aprovado"><i class='bx bx-check-shield bx-lg' style='color: RoyalBlue'></i></td>`;
               }else{
                 tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Gasto" onclick="aprovar_gasto('${item.id}', '${item.item}', '${item.solicitante}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
               } 
@@ -282,17 +282,15 @@
         tabela += "</tr>";
       });
       document.getElementById('corpo_tabela').innerHTML = tabela;
-      document.getElementById('info').style.display = 'block';
     }
 
     async function iniciar() {
       array_programas = await listar_programas();
       array_projetos = await listar_projetos();
       array_itens = await listar_itens();
-      array_gastos = await listar_gastos();
-      if(sessionStorage.nivel === 'Financeiro'){
-        listar_tabela();
-      }
+      array_gastos = await gastos_por_projeto(myParam);
+      //console.log(array_gastos);
+      listar_tabela();
     }
 
     // Modal de Cadastro de projetos.

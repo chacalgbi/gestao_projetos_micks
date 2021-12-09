@@ -169,49 +169,53 @@
           array_pagamentos.forEach((x)=>{ if(item.forma_pagamento == x.id){ nome_pagamentos = x.forma }});
 
           let nome_projetos = "";
+          let pessoas;
           array_projetos.forEach((x)=>{
             if(item.id_projeto == x.id){
               nome_projetos = x.nome
-              if(x.aprovado == 'sim'){
+              pessoas = x.responsaveis.split(", ");
+              if(x.aprovado == 'sim' || x.aprovado == 'pend'){
                 projeto_aprovado = true;
               }
             }
           });
 
-          tabela += "<tr>";
-            tabela += `
-            <td>${index+1}</td>
-            <td>${item.nome}</td>
-            <td>${nome_projetos}</td>
-            <td>${item.qtd}</td>
-            <td>${item.uni.replace(",","+").replace(".",",").replace("+",".")}</td>
-            <td>${item.total.replace(",","+").replace(".",",").replace("+",".")}</td>
-            <td>${nome_pagamentos}</td>
-            <td>${nome_categoria}</td>
-            <td>${item.obs}</td>`;
-            if(projeto_aprovado === false){
-              tabela += `
-                <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal_edit" title="Editar Item"
-                  data-bs-id="${item.id}"
-                  data-bs-nome="${item.nome}"
-                  data-bs-id_projeto="${item.id_projeto}"
-                  data-bs-qtd="${item.qtd}"
-                  data-bs-preco_uni="${item.preco_uni}"
-                  data-bs-preco_total="${item.preco_total}"
-                  data-bs-forma_pagamento="${item.forma_pagamento}"
-                  data-bs-categoria="${item.categoria}"
-                  data-bs-obs="${item.obs}"
-                ><i class='bx bx-edit bx-tada bx-md'></i></button></td>
-                <td><button type="button" class="btn btn-outline-danger" title="Deletar Item" onclick="apagar_item(${item.id})"><i class='bx bx-recycle bx-spin bx-md'></i></button></td>
-                `;
-            }else{
-              tabela += `
-                <td><i class='bx bxs-error bx-md' title="Não é possível editar um item após o projeto aprovado."></i></td>
-                <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado."></i></td>
-              `;
-            }
+          if(pessoas.includes(sessionStorage.nome) || sessionStorage.nivel === 'Financeiro'){
+                tabela += "<tr>";
+                tabela += `
+                <td>${index+1}</td>
+                <td>${item.nome}</td>
+                <td>${nome_projetos}</td>
+                <td>${item.qtd}</td>
+                <td>${item.uni.replace(",","+").replace(".",",").replace("+",".")}</td>
+                <td>${item.total.replace(",","+").replace(".",",").replace("+",".")}</td>
+                <td>${nome_pagamentos}</td>
+                <td>${nome_categoria}</td>
+                <td>${item.obs}</td>`;
+                if(projeto_aprovado === false){
+                  tabela += `
+                    <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal_edit" title="Editar Item"
+                      data-bs-id="${item.id}"
+                      data-bs-nome="${item.nome}"
+                      data-bs-id_projeto="${item.id_projeto}"
+                      data-bs-qtd="${item.qtd}"
+                      data-bs-preco_uni="${item.preco_uni}"
+                      data-bs-preco_total="${item.preco_total}"
+                      data-bs-forma_pagamento="${item.forma_pagamento}"
+                      data-bs-categoria="${item.categoria}"
+                      data-bs-obs="${item.obs}"
+                    ><i class='bx bx-edit bx-tada bx-md'></i></button></td>
+                    <td><button type="button" class="btn btn-outline-danger" title="Deletar Item" onclick="apagar_item(${item.id})"><i class='bx bx-recycle bx-spin bx-md'></i></button></td>
+                    `;
+                }else{
+                  tabela += `
+                    <td><i class='bx bxs-error bx-md' title="Não é possível editar um item após o projeto aprovado."></i></td>
+                    <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado."></i></td>
+                  `;
+                }
+                tabela += "</tr>";            
+          }
 
-          tabela += "</tr>";
         });
         document.getElementById('corpo_tabela').innerHTML = tabela;
       }
@@ -221,7 +225,7 @@
         if(ao_iniciar){
           let select_projetos = "<option selected disabled>Selecione um projeto</option>";
           array_projetos.map((item)=>{
-            if(item.aprovado == 'sim'){
+            if(item.aprovado == 'sim' || item.aprovado == 'pend'){
               select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
             }else{
               const pessoas = item.responsaveis.split(", ");
@@ -308,8 +312,8 @@
           categoria: document.getElementById('categoria_edit').value,
           obs: document.getElementById('obs_edit').value
         }
-        console.log(obj_item.preco_uni);
-        console.log(obj_item.preco_total);
+        //console.log(obj_item.preco_uni);
+        //console.log(obj_item.preco_total);
         if(obj_item.id_projeto === '' || obj_item.nome === '' || obj_item.qtd === '' || obj_item.preco_uni === '' ||
            obj_item.preco_total === '0' || obj_item.forma_pagamento === '' || obj_item.categoria === ''){
             Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
@@ -320,7 +324,7 @@
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
               }else{
                 $("#btn_editar").notify( "Item alterado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
-                //setTimeout(function() { location.replace("itens.html"); }, 2000);
+                setTimeout(function() { location.replace("itens.html"); }, 2000);
               }
           })
           .catch(function (error) {

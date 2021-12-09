@@ -176,7 +176,7 @@
           array_projetos.forEach((x)=>{ 
             if(item.id_projeto == x.id){
               nome_projetos = x.nome
-              if(x.aprovado == 'sim'){
+              if(x.aprovado == 'sim' || x.aprovado == 'pend'){
                 projeto_aprovado = true;
                 document.getElementById('btn_cadastrar_item').style.display = 'none';
               }
@@ -212,8 +212,8 @@
                 `;
             }else{
               tabela += `
-                <td><i class='bx bxs-error bx-md' title="Não é possível editar um item após o projeto aprovado."></i></td>
-                <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado."></i></td>
+                <td><i class='bx bxs-error bx-md' title="Não é possível editar um item após o projeto aprovado ou pendente."></i></td>
+                <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado ou pendente."></i></td>
               `;
             }
           tabela += "</tr>";
