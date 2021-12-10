@@ -285,6 +285,25 @@ function gasto_soma(id){
     });
 }
 
+function upload_read(id){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}upload_read`,{id: id}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
 function gastos_por_projeto(id){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){

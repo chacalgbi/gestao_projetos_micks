@@ -1,0 +1,28 @@
+http://177.38.178.24/integrator.server.php
+
+//Requisição
+{ 
+    "request": {
+        "sendRequest": "integrator.server", 
+        "method": "list", 
+        "submethod": "fatura.baixarFatura",
+        "params": { 
+            "_user": "LUYbDVxxfmbEJR2L6", 
+            "_passwd": "Yn5i6VVD8tGPdKBEq", 
+            "codfat": "IQ6D0ZP67Z",
+            "valor_pag": "35"
+        } 
+    } 
+}
+
+
+//Resposta
+{
+    "error": false,
+    "exception": null,
+    "data": {
+        "results": [
+            null
+        ]
+    }
+}

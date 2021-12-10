@@ -1,5 +1,22 @@
 const { Router } = require("express");
 const gestao = require('./controllers/gestao');
+const multer = require('multer');
+const path = require('path');
+
+let nome_arquivo = '';
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, "uploads/");
+    },
+    filename: function(req, file, cb){
+        nome_arquivo = Date.now() + path.extname(file.originalname);
+        req.body.nome = nome_arquivo;
+        cb(null, nome_arquivo);
+    }
+});
+
+const upload = multer({storage});
 
 const routes = new Router();
 
@@ -8,6 +25,8 @@ routes.get('/listar_usuarios', gestao.listar_usuarios);
 routes.post('/telegram', gestao.telegram);
 routes.get('/categorias_read', gestao.categorias_read);
 routes.get('/pagamentos_read', gestao.pagamentos_read);
+routes.post('/upload', upload.single("file"), gestao.upload);
+routes.post('/upload_read', gestao.upload_read);
 
 routes.get('/programa_read', gestao.programa_read);
 routes.post('/programa_insert', gestao.programa_insert);

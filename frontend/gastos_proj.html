@@ -85,6 +85,7 @@
             <th>OBS</th>
             <th>Data da Retirada</th>
             <th>Aprovar Gastos</th>
+            <th>Comprovantes</th>
           </tr>
         </thead>
         <tbody id="corpo_tabela">
@@ -129,6 +130,59 @@
     </div>
   </div>
 
+    <!-- COMPROVANTES -->
+    <div class="modal fade" id="modal_comprovantes" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="modal-header">
+                <h5 class="modal-title">Enviar Arquivo</h5>
+              </div>
+              <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" id="form_up" action="">
+                  <div class="form-group">
+                    <div class="input-group mb-3"><input type="file" class="form-control" name="file"></div>
+                    <div class="input-group mb-3"><span class="input-group-text">OBS: </span><textarea class="form-control" rows="6" name="obs_comprovante"></textarea></div>
+                    <br />
+                    <div id="div_oculta" style="display: none;">
+                      <input type="text" class="form-control" id="com_id_gasto" name="compro_id_gasto">
+                      <input type="text" class="form-control" id="com_id_proj" name="compro_id_proj">
+                      <input type="text" class="form-control" id="com_id_prog" name="compro_id_prog">
+                      <input type="text" class="form-control" id="com_solicit" name="compro_solicit">
+                      <input type="text" class="form-control" id="com_item" name="compro_item">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" id="btn_inserir" onclick="">Enviar Arquivo</button>
+                </form>
+              </div>
+            </div>
+            <div class="col-sm-8">
+              <div class="modal-header">
+                <h5 class="modal-title">Visualizar Comprovantes e Notas Fiscais</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div> 
+              <div class="modal-body">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>>
+                      <th>Item</th>
+                      <th>Solicitante</th>
+                      <th>Arquivo</th>
+                      <th>Data/Hora</th>
+                      <th>OBS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="compro_tabela">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./assets/dist/js/geral.js"></script>
   <script>
@@ -141,8 +195,13 @@
     var array_itens = [];
     var array_gastos = [];
     var array_totais = [];
+    var array_uploads = [];
+
     $("#header").load("menu/menu.html");
-    $(document).ready(function ($) { verificar(); });
+    $(document).ready(function ($) {
+      document.getElementById('form_up').action = `${ip}upload`;
+      verificar(); 
+    });
 
     function enviar_telegram(msg) {
       axios.post(`${ip}telegram`, msg).then(function (response) { 
@@ -279,6 +338,15 @@
             }else{
               tabela += `<td title="Reservado ao Financeiro"><i class='bx bx-link bx-lg' style='color: RoyalBlue'></i></td>`;
             }
+            tabela += `<td>
+                  <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal_comprovantes" title="Comprovantes de gastos"
+                    data-bs-id="${item.id}"
+                    data-bs-id_prog="${item.id_programa}"
+                    data-bs-id_proj="${item.id_projeto}"
+                    data-bs-item="${item.item}"
+                    data-bs-solicitante="${sessionStorage.nome}"
+                  ><i class='bx bx-import bx-md'></i></button>
+              </td>`;
         tabela += "</tr>";
       });
       document.getElementById('corpo_tabela').innerHTML = tabela;
@@ -289,8 +357,24 @@
       array_projetos = await listar_projetos();
       array_itens = await listar_itens();
       array_gastos = await gastos_por_projeto(myParam);
-      //console.log(array_gastos);
+      console.log(array_gastos);
       listar_tabela();
+    }
+
+    async function buscar_uploads(id){
+      array_uploads = await upload_read(id);
+      console.log(array_uploads);
+      let tabela = '';
+      array_uploads.map((item)=>{
+        tabela += "<tr>";
+          tabela += `<td>${item.item}</td>`;
+          tabela += `<td>${item.solicitante}</td>`;
+          tabela += `<td><a href="${ip}${item.arquivo}" target="_blank">${item.arquivo}</a></td>`;
+          tabela += `<td>${item.hora1}</td>`;
+          tabela += `<td>${item.obs}</td>`;
+        tabela += "</tr>";
+      });
+      document.getElementById('compro_tabela').innerHTML = tabela;
     }
 
     // Modal de Cadastro de projetos.
@@ -298,6 +382,18 @@
     solicitar_gastos.addEventListener('show.bs.modal', function (event) {
       var button = event.relatedTarget;
       modal_add_programas(array_programas);
+    });
+
+    // Modal de Comprovantes
+    var comprovantes = document.getElementById('modal_comprovantes');
+    comprovantes.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      document.getElementById('com_id_gasto').value = button.getAttribute('data-bs-id');
+      document.getElementById('com_id_proj').value = button.getAttribute('data-bs-id_proj');
+      document.getElementById('com_id_prog').value = button.getAttribute('data-bs-id_prog');
+      document.getElementById('com_solicit').value = button.getAttribute('data-bs-solicitante');
+      document.getElementById('com_item').value = button.getAttribute('data-bs-item');
+      buscar_uploads(button.getAttribute('data-bs-id'));
     });
 
     iniciar();

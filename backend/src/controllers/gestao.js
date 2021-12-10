@@ -9,6 +9,8 @@ const bot = new TelegramBot(process.env.TOKEN, {polling: true});
 let tudo_ok = true;
 let resp = {};
 
+
+
 class gestao{
 
   async login(req, res){
@@ -559,6 +561,42 @@ class gestao{
       tudo_ok = false;
       resp.msg = erro;      
     });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async upload(req, res){
+    tudo_ok = true;
+    resp = {};
+    const obs = req.body.obs_comprovante.replace(/'|"/g, "");
+    const query = `INSERT INTO comprovantes
+    (id_gasto, id_programa, id_projeto, item, solicitante, arquivo, obs, hora) values
+    ('${req.body.compro_id_gasto}','${req.body.compro_id_prog}','${req.body.compro_id_proj}','${req.body.compro_item}',
+    '${req.body.compro_solicit}','${req.body.nome}','${obs}',NOW());`;
+
+    await BD(query).then((ok)=>{
+      //resp.dados = ok;
+      resp.msg = "UPLOAD feito com sucesso! Clique em retornar no seu navegador!"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });   
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async upload_read(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT *, DATE_FORMAT(hora, '%d/%m/%Y %H:%i') as hora1 FROM comprovantes WHERE id_gasto='${req.body.id}';`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });   
 
     API(resp, res, 200, tudo_ok);
   }
