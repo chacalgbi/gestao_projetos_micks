@@ -53,6 +53,7 @@ routes.post('/update_aprovacao', gestao.update_aprovacao);
 
 routes.post('/gasto_insert', gestao.gasto_insert);
 routes.post('/gasto_update', gestao.gasto_update);
+routes.post('/gasto_update_valor', gestao.gasto_update_valor);
 routes.post('/gasto_soma', gestao.gasto_soma);
 routes.get('/gasto_read', gestao.gasto_read);
 routes.post('/gastos_por_projeto', gestao.gastos_por_projeto);

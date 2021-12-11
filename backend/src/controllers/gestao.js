@@ -441,7 +441,7 @@ class gestao{
       resp.msg = erro;      
     });
 
-    const query2 = `UPDATE projetos SET aprovado="sim" WHERE id="${req.body.id}";`;
+    const query2 = `UPDATE projetos SET aprovado="sim" WHERE id="${req.body.id_projeto}";`;
     await BD(query2).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
@@ -507,6 +507,22 @@ class gestao{
     resp = {};
 
     const query = `UPDATE gastos SET aprovado='sim' WHERE id="${req.body.id}";`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gasto_update_valor(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query = `UPDATE gastos SET valor="${req.body.valor}" WHERE id="${req.body.id}";`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
