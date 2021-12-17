@@ -120,6 +120,7 @@
             })
             .catch(function (error) {
                 console.log(error);
+                $.notify(`${error}`, "error");
             });
         }
       }

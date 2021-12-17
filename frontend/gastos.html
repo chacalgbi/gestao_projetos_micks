@@ -179,7 +179,7 @@
       });
       document.getElementById('item_insert').innerHTML = str;
       array_totais = await gasto_soma(id);
-      document.getElementById('valores_do_projeto').value = `R$${array_totais[0].total_itens} /\ R$${array_totais[0].total_gastos}`;
+      document.getElementById('valores_do_projeto').value = `${array_totais[0].total_itens.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} /\ ${array_totais[0].total_gastos.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}`;
     }
 
     function modal_add_solicitante() {

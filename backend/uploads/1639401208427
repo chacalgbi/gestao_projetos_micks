@@ -1,0 +1,27 @@
+vistoria:
+ -id
+ -id_carro
+ -cod
+ -modelo
+ -nome_condutor
+ -lataria
+ -motor
+ -limpeza
+ -avaria_externa
+ -avaria_interna
+ -obs
+ -criado_em
+
+carro:
+ -id
+ -cod
+ -modelo
+ -placa
+ -ano
+ -criado_em
+
+condutor:
+ -id
+ -nome_condutor
+ -criado_em
+

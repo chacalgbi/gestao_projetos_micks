@@ -118,10 +118,6 @@
             temp2 ? prog_gasto += temp2 : prog_gasto += 0;
           }
 
-          
-
-          
-
           let valor_total = temp1;
           valor_total = valor_total ? valor_total : 0;
 
@@ -168,14 +164,13 @@
                 }else{
                   tabela += `<td class="text-center"><a role="button" class="btn btn-outline-warning" title="Solicitar Gasto para o Projeto" href="gastos.html"><i class='bx bx-dollar bx-md'></i></a></td>`;
                 }
-                tabela += `<td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
+                tabela += `<td title="Status do Projeto"><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
 
                 tabela += `<td><a role="button" class="btn btn-outline-danger" title="Gastos solicitados para o projeto ${item.nome.toUpperCase()}" href="gastos_proj.html?id=${item.id}"><i class='bx bx-line-chart bx-md'></i></a></td>`;
                 tabela += `<td>${porcent}%
                   <div class="progress" style="height: 30px;">
                     <div class="progress-bar progress-bar-striped bg-${cor_barra} progress-bar-animated" role="progressbar" style="width: ${porcent}%;" aria-valuenow="${porcent}" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                          </td>`;
+                  </div></td>`;
               tabela += "</tr>";
 
           }
@@ -214,6 +209,8 @@
             options += `<option value="${item.id}">${item.nome}</option>`;
           });
           document.getElementById('programa_selecionar').innerHTML = options;
+        }else{
+          $.notify(`Erro de permissão!`, "error");
         }
       }
 

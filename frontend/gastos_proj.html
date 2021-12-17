@@ -239,7 +239,7 @@
       });
       document.getElementById('item_insert').innerHTML = str;
       array_totais = await gasto_soma(id);
-      document.getElementById('valores_do_projeto').value = `R$${array_totais[0].total_itens} /\ R$${array_totais[0].total_gastos}`;
+      document.getElementById('valores_do_projeto').value = `${array_totais[0].total_itens.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} /\ ${array_totais[0].total_gastos.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}`;
     }
 
     function modal_add_solicitante() {
@@ -350,7 +350,7 @@
               </td>`;
             if(sessionStorage.nivel === 'Financeiro'){
               if(item.aprovado == 'sim'){
-                tabela += `<td><button type="button" class="btn btn-info" title="Ajustar valor do gasto" onclick="restituir_gasto('${item.id}', '${item.id_projeto}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                tabela += `<td><button type="button" class="btn btn-info" title="Ajustar valor do gasto" onclick="restituir_gasto('${item.id}', '${item.id_projeto}', '${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
               }else{
                 tabela += `<td title="Gasto ainda não foi aprovado"><i class='bx bxs-analyse bx-lg' style='color: SandyBrown'></i></td>`;
               }
@@ -362,9 +362,9 @@
       document.getElementById('corpo_tabela').innerHTML = tabela;
     }
 
-    function restituir_gasto(id, id_projeto){
+    function restituir_gasto(id, id_projeto, valor){
       Swal.fire({
-          title: `Deseja MODIFICAR o VALOR do gasto?`,
+          title: `Digite o valor real dos gastos indicados nos comprovantes. O valor solicitado foi: ${valor}`,
           text: "Coloque apenas numeros. EX: '1250,45'",
           input: 'text',
           icon: 'info',

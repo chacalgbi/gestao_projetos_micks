@@ -32,6 +32,7 @@ function listar_usuarios(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -91,6 +92,7 @@ function listar_categorias(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -109,6 +111,7 @@ function listar_aprovacao(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -127,6 +130,7 @@ function listar_pagamentos(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -146,6 +150,7 @@ function itens_soma_por_projeto(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -165,6 +170,7 @@ function listar_projetos(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -184,6 +190,7 @@ function pegar_projeto(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -203,6 +210,7 @@ function pegar_projetos_por_programa(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -222,6 +230,7 @@ function listar_itens(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -241,6 +250,7 @@ function listar_programas(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -260,6 +270,7 @@ function listar_itens_projeto(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -279,6 +290,7 @@ function gasto_soma(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -298,6 +310,7 @@ function upload_read(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -317,6 +330,7 @@ function gastos_por_projeto(id){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });
@@ -336,6 +350,7 @@ function listar_gastos(){
             }
         })
         .catch(function (error) {
+            $.notify(`${error}`, "error");
             console.log(error);
             reject(error);
         });

@@ -4,12 +4,10 @@ const log   = require('../configs/log');
 const API   = require('../configs/resposta_API');;
 const BD    = require('../configs/acessar_BD');
 const delay = require('../configs/delay');
-const chat_id = -1001779760701;
+const chat_id = process.env.CHAT_ID;
 const bot = new TelegramBot(process.env.TOKEN, {polling: true});
 let tudo_ok = true;
 let resp = {};
-
-
 
 class gestao{
 
