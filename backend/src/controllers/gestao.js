@@ -80,13 +80,14 @@ class gestao{
   async programa_insert(req, res){
     const nome = req.body.nome.replace(/'|"/g, "");
     const obs = req.body.obs.replace(/'|"/g, "");
+    const total = req.body.total;
     tudo_ok = true;
     resp = {};
     let query = "";
     if(req.body.mes === '-01'){
-      query = `INSERT INTO programa (nome, obs) values ("${nome}", "${obs}");`;
+      query = `INSERT INTO programa (nome, obs, total_pretendido) values ("${nome}", "${obs}", "${total}");`;
     }else{
-      query = `INSERT INTO programa (nome, mes_ano, obs) values ("${nome}", "${req.body.mes}", "${obs}");`;
+      query = `INSERT INTO programa (nome, mes_ano, obs, total_pretendido) values ("${nome}", "${req.body.mes}", "${obs}", "${total}");`;
     }
 
     await BD(query).then((ok)=>{
@@ -104,9 +105,10 @@ class gestao{
   async programa_update(req, res){
     const nome = req.body.nome.replace(/'|"/g, "");
     const obs = req.body.obs.replace(/'|"/g, "");
+    const total = req.body.total;
     tudo_ok = true;
     resp = {};
-    const query = `UPDATE programa SET nome='${nome}', obs='${obs}' WHERE id='${req.body.id}';`;
+    const query = `UPDATE programa SET nome='${nome}', obs='${obs}', total_pretendido='${total}' WHERE id='${req.body.id}';`;
 
     await BD(query).then((ok)=>{
       resp.dados = ok;
@@ -565,7 +567,8 @@ class gestao{
     INNER JOIN programa pg ON gt.id_programa = pg.id 
     INNER JOIN projetos pj ON gt.id_projeto = pj.id 
     INNER JOIN itens it ON gt.id_item = it.id
-    WHERE gt.id_projeto='${req.body.id}';
+    WHERE gt.id_projeto='${req.body.id}' 
+    ORDER BY aprovado, hora_solicitacao DESC
     `;
 
     await BD(query).then((ok)=>{

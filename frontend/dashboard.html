@@ -48,7 +48,7 @@
 
       <div class="info" id="div_info" style="display: none;">
         <div class="row">
-          <div class="col-sm-3"><h4 id="programa_nome"></h4></div>
+          <div class="col-sm-3"><h5 id="programa_nome"></h5></div>
           <div class="col-sm-5"><div class="progress" id="programa_progresso" style="height: 30px;"></div></div>
           <div class="col-sm-3" id="programa_total"></div>
         </div>
@@ -87,13 +87,16 @@
       var array_programas = [];
       var array_projetos = [];
       var array_gastos = [];
+      var orcamento = '';
 
       async function programa_buscar(id){
+        let id_ = id.split("?");
+        orcamento = id_[1];
         array_gastos = [];
         array_projetos = [];
         const nome_do_programa = $('#programa_selecionar').find(":selected").text()
-        document.getElementById('programa_nome').innerHTML = nome_do_programa;
-        array_projetos = await pegar_projetos_por_programa(id);
+        document.getElementById('programa_nome').innerHTML = nome_do_programa + " - Orç. Disponível: " + orcamento;
+        array_projetos = await pegar_projetos_por_programa(id_[0]);
         for (const [index, projeto] of array_projetos.entries()) {
           let gastos = await gasto_soma(projeto.id);
           array_gastos.push(gastos);
@@ -197,7 +200,7 @@
 
         document.getElementById('corpo_tabela').innerHTML = tabela;
         document.getElementById('programa_progresso').innerHTML = barra_progress;
-        document.getElementById('programa_total').innerHTML = `Total: ${real}`;
+        document.getElementById('programa_total').innerHTML = `<h5>Soma dos projetos aprovados: ${real}</h5>`;
         document.getElementById('div_info').style.display = 'block';
       }
 
@@ -206,7 +209,7 @@
           array_programas = await listar_programas();
           let options = '<option selected disabled>Selecione um Programa para exibir os projetos relacionados</option>';
           array_programas.map((item, index)=>{
-            options += `<option value="${item.id}">${item.nome}</option>`;
+            options += `<option value="${item.id}?${item.total_pretendido.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}">${item.nome}</option>`;
           });
           document.getElementById('programa_selecionar').innerHTML = options;
         }else{

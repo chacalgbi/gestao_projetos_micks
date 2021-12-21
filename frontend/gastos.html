@@ -118,7 +118,7 @@
             <div class="input-group mb-3"><span class="input-group-text">OBS: </span><textarea class="form-control"
                 rows="3" id="obs_insert"></textarea></div>
             <div class="input-group mb-3"><span class="input-group-text">Data Retirada: </span><input type="date"
-                class="form-control" id="data_retirada"></div>
+                class="form-control" id="data_retirada" onchange="verificar_terca_quinta(this.value)"></div>
           </form>
         </div>
         <div class="modal-footer">
@@ -211,7 +211,7 @@
             } else {
               $("#btn_inserir").notify("Gasto cadastrado com sucesso!", { position: 'top left', className: 'success', autoHideDelay: 3000 });
               // Envia Mensagem via telegram pedido a aprovaçao do gasto.
-              const obj_msg = {msg: `${obj_gasto.solicitante} enviou um Gasto no valor de R$${obj_gasto.valor} do Projeto "${projeto}" para o dia ${obj_gasto.data_retirada} para aprovação!`}
+              const obj_msg = {msg: `${obj_gasto.solicitante} enviou um Gasto do Projeto "${projeto}" para o dia ${obj_gasto.data_retirada} para aprovação!`}
               enviar_telegram(obj_msg);
               setTimeout(function () { location.replace("gastos.html"); }, 5000);
             }
@@ -232,23 +232,31 @@
           cancelButtonText: 'Cancelar'
       })
       .then((result) => {
-          axios.post(`${ip}gasto_update`, {id: id}).then(function (response) {
-              if(response.data.erroGeral === 'sim'){
-                Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
-                console.log(response.data.msg.resposta);
-              }else{
-                Swal.fire({ icon: 'success', title: 'Gasto Aprovado!', text: `Com ${response.data.msg}` });
-                // Envia Mensagem via telegram pedido a aprovaçao do projeto.
-                const obj_msg = {msg: `${sessionStorage.nome} aprovou o Gasto solicitado por ${solicitante} referente a ${item}.`}
-                enviar_telegram(obj_msg);
-                setTimeout(function () { location.replace("gastos.html"); }, 5000);
-              }
-          })
-          .catch(function (error) {
-            console.log("Deu erro");
-            console.log(error);
-            Swal.fire( 'Erro!', `${error}`, 'error' );
-          });
+        if (result.isConfirmed) {
+            axios.post(`${ip}gasto_update`, {id: id}).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
+                  console.log(response.data.msg.resposta);
+                }else{
+                  Swal.fire({ icon: 'success', title: 'Gasto Aprovado!', text: `Com ${response.data.msg}` });
+                  // Envia Mensagem via telegram pedido a aprovaçao do projeto.
+                  const obj_msg = {msg: `${sessionStorage.nome} aprovou o Gasto solicitado por ${solicitante} referente a ${item}.`}
+                  enviar_telegram(obj_msg);
+                  setTimeout(function () { location.replace("gastos.html"); }, 5000);
+                }
+            })
+            .catch(function (error) {
+              console.log("Deu erro");
+              console.log(error);
+              Swal.fire( 'Erro!', `${error}`, 'error' );
+            });
+        }else{
+          Swal.fire(
+            'Cancelado!',
+            'A aprovação do gasto foi cancelada.',
+            'info'
+          )
+        }
       })
     }
 
@@ -292,6 +300,16 @@
       array_gastos = await listar_gastos();
       if(sessionStorage.nivel === 'Financeiro'){
         listar_tabela();
+      }
+    }
+
+    function verificar_terca_quinta(data){
+      let retirada = new Date(data);
+      let dia_semana = retirada.getDay();
+      if(dia_semana === 1 || dia_semana === 3){
+        
+      }else{
+        Swal.fire('ATENÇÃO!', 'Retirada de gastos apenas as Terças e Quintas!', 'info' );
       }
     }
 

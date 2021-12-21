@@ -176,7 +176,7 @@
           array_projetos.forEach((x)=>{ 
             if(item.id_projeto == x.id){
               nome_projetos = x.nome
-              if(x.aprovado == 'sim' || x.aprovado == 'pend'){
+              if((x.aprovado == 'sim' || x.aprovado == 'pend') && sessionStorage.nivel != 'Financeiro'){
                 projeto_aprovado = true;
                 document.getElementById('btn_cadastrar_item').style.display = 'none';
               }
@@ -227,15 +227,19 @@
         if(ao_iniciar){
           let select_projetos = "<option selected disabled>Selecione um projeto</option>";
           array_projetos.map((item)=>{
-            if(item.aprovado == 'sim'){
-              select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
+            if(sessionStorage.nivel === 'Financeiro'){
+              select_projetos += `<option value="${item.id}">${item.nome}</option>`;
             }else{
-              const pessoas = item.responsaveis.split(", ");
-              if(pessoas.includes(sessionStorage.nome)){
-                select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+              if(item.aprovado == 'sim'){
+                select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
               }else{
-                select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
-              } 
+                const pessoas = item.responsaveis.split(", ");
+                if(pessoas.includes(sessionStorage.nome)){
+                  select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+                }else{
+                  select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
+                } 
+              }
             }
           });
           document.getElementById('projeto_insert').innerHTML = select_projetos;
@@ -392,20 +396,24 @@
         let proj_id = button.getAttribute('data-bs-id_projeto');
         let proj_str = '';
         array_projetos.map((proj)=>{
-          if(proj.aprovado == 'sim'){
-            proj_str += `<option disabled>${proj.nome} - Aprovado</option>`;
-          }else{
-            const pessoas = proj.responsaveis.split(", ");
-            if(pessoas.includes(sessionStorage.nome)){
-              if(proj_id == proj.id){
-                proj_str += `<option value="${proj.id}" selected>${proj.nome}</option>`;
-              }else{
-                proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
-              }
+          if(sessionStorage.nivel === 'Financeiro'){
+            proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
             }else{
-              proj_str += `<option disabled>${proj.nome} - Sem permissão</option>`;
-            } 
-          }  
+              if(proj.aprovado == 'sim'){
+                proj_str += `<option disabled>${proj.nome} - Aprovado</option>`;
+              }else{
+                const pessoas = proj.responsaveis.split(", ");
+                if(pessoas.includes(sessionStorage.nome)){
+                  if(proj_id == proj.id){
+                    proj_str += `<option value="${proj.id}" selected>${proj.nome}</option>`;
+                  }else{
+                    proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
+                  }
+                }else{
+                  proj_str += `<option disabled>${proj.nome} - Sem permissão</option>`;
+                } 
+              }
+            }
         });
         document.getElementById('projeto_edit').innerHTML = proj_str;
 

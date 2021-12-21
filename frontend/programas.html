@@ -69,6 +69,7 @@
                <th>Programa</th>
                <th>Obs</th>
                <th>Data/Hora</th>
+               <th>Orçamento Disponível</th>
                <th>Editar</th>
                <th>Apagar</th>
              </tr>
@@ -96,6 +97,10 @@
               <div class="mb-3">
                 <label class="col-form-label">Nome:</label>
                 <input type="text" class="form-control" id="nome">
+              </div>
+              <div class="mb-3">
+                <label class="col-form-label">Total Pretendido:</label>
+                <input type="number" class="form-control" id="total_edit">
               </div>
               <div class="mb-3">
                 <labelclass="col-form-label">OBS:</label>
@@ -135,6 +140,10 @@
               <div class="mb-3" id="div_mes" style="display: none">
                 <label class="col-form-label">Mês/Ano:</label>
                 <input type="month" class="form-control" id="mes_insert" onchange="alterar_nome()">
+              </div>
+              <div class="mb-3">
+                <label class="col-form-label">Total Pretendido:</label>
+                <input type="number" class="form-control" id="total">
               </div>
               <div class="mb-3">
                 <labelclass="col-form-label">OBS:</label>
@@ -220,7 +229,8 @@
                   <td>${item.nome}</td>
                   <td>${item.obs}</td>
                   <td>${item.hora1}</td>
-                  <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" data-bs-id="${item.id}" data-bs-nome="${item.nome}" data-bs-obs="${item.obs}" title="Editar Programa"><i class='bx bx-edit bx-tada bx-md'></i></button></td>
+                  <td>${item.total_pretendido.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>
+                  <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" data-bs-id="${item.id}" data-bs-nome="${item.nome}" data-bs-total_edit="${item.total_pretendido}" data-bs-obs="${item.obs}" title="Editar Programa"><i class='bx bx-edit bx-tada bx-md'></i></button></td>
                   <td><button type="button" class="btn btn-outline-danger" id="botao_apagar" value="${item.id}" onclick="deletar(this.value)" title="Apagar Programa"><i class='bx bx-recycle bx-spin bx-md'></i></button></td>
                   `;
                 tabela += "</tr>";
@@ -235,14 +245,15 @@
         }
       }
 
-      function salvar(){
+      function salvar(){  
         const id = document.getElementById('id_').innerHTML;
         const nome = document.getElementById('nome').value;
+        const total = document.getElementById('total_edit').value.replace(",", ".");
         const obs = document.getElementById('obs').value;
         if(id === '' || nome === ''){
           Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha o campo nome do programa!' });
         }else{
-          axios.post(`${ip}programa_update`,{nome, obs, id}).then(function (response) {
+          axios.post(`${ip}programa_update`,{nome, obs, total, id}).then(function (response) {
               if(response.data.erroGeral === 'sim'){
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
               }else{
@@ -258,6 +269,7 @@
       function inserir(){
         const nome = document.getElementById('nome_insert').value;
         const obs = document.getElementById('obs_insert').value;
+        const total = document.getElementById('total').value.replace(",", ".");
         const mes = document.getElementById('mes_insert').value + '-01';
         console.log(mes);
         
@@ -265,7 +277,7 @@
           Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha o campo nome do programa!' });
         }else{
 
-          axios.post(`${ip}programa_insert`,{nome, obs, mes}).then(function (response) {
+          axios.post(`${ip}programa_insert`,{nome, obs, mes, total}).then(function (response) {
             if(response.data.erroGeral === 'sim'){
               Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
             }else{
@@ -321,6 +333,7 @@
         document.getElementById('nome').value = button.getAttribute('data-bs-nome');
         document.getElementById('obs').value = button.getAttribute('data-bs-obs');
         document.getElementById('id_').innerHTML = button.getAttribute('data-bs-id');
+        document.getElementById('total_edit').value = button.getAttribute('data-bs-total_edit');
       });
     </script>
   </body>

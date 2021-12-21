@@ -100,35 +100,37 @@
         array_aprovacao = await listar_aprovacao();
         console.log(array_aprovacao);
         let tabela = "";
+        
         array_aprovacao.map((item, index, array)=>{
-          tabela += "<tr>";
-              tabela += `<td>${index+1}</td>`;
-              tabela += `<td>${item.projeto}</td>`;
-              tabela += `<td>${item.programa}</td>`;
-              tabela += `<td>${item.responsavel}</td>`;
-              tabela += `<td>${item.valor}</td>`;
-              tabela += `<td>${item.hora1}</td>`;
-              tabela += `<td>${item.obs_1}</td>`;
-              if(item.status === "Pendente"){
-                tabela += `<td title="Projeto ${item.projeto.toUpperCase()}  com aprovação pendente"><i class='bx bxs-user-x bx-lg bx-flashing' style='color: Crimson'></i></td>`;
-              }else{
-                tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado"><i class='bx bx-check-shield bx-lg' style='color: Lime'></i></td>`;
-              }
-              
-              tabela += `<td>${item.quem_aprovou == null ? "" : item.quem_aprovou}</td>`;
-              tabela += `<td>${item.hora2 == null ? "" : item.hora2}</td>`;
-              tabela += `<td>${item.obs_2 == null ? "" : item.obs_2}</td>`;
-              if(item.status === 'Aprovado'){
-                tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado pelo Financeiro"><i class='bx bxs-credit-card bx-lg' style='color: Lime'></i></td>`;
-              }
-              else{
-                if(sessionStorage.nivel === 'Financeiro'){
-                  tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Projeto" onclick="aprovar('${item.projeto}', '${item.id}', '${item.id_projeto}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+          if(item.responsavel == sessionStorage.nome || sessionStorage.nivel === 'Financeiro'){
+            tabela += "<tr>";
+                tabela += `<td>${index+1}</td>`;
+                tabela += `<td>${item.projeto}</td>`;
+                tabela += `<td>${item.programa}</td>`;
+                tabela += `<td>${item.responsavel}</td>`;
+                tabela += `<td>${item.valor}</td>`;
+                tabela += `<td>${item.hora1}</td>`;
+                tabela += `<td>${item.obs_1}</td>`;
+                if(item.status === "Pendente"){
+                  tabela += `<td title="Projeto ${item.projeto.toUpperCase()}  com aprovação pendente"><i class='bx bxs-user-x bx-lg bx-flashing' style='color: Crimson'></i></td>`;
                 }else{
-                  tabela += `<td>Reservado ao Financeiro</td>`;
+                  tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado"><i class='bx bx-check-shield bx-lg' style='color: Lime'></i></td>`;
                 }
-              }
-          tabela += "</tr>";
+                
+                tabela += `<td>${item.quem_aprovou == null ? "" : item.quem_aprovou}</td>`;
+                tabela += `<td>${item.hora2 == null ? "" : item.hora2}</td>`;
+                tabela += `<td>${item.obs_2 == null ? "" : item.obs_2}</td>`;
+                if(item.status === 'Aprovado'){
+                  tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado pelo Financeiro"><i class='bx bxs-credit-card bx-lg' style='color: Lime'></i></td>`;
+                }else{
+                  if(sessionStorage.nivel === 'Financeiro'){
+                    tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Projeto" onclick="aprovar('${item.projeto}', '${item.id}', '${item.id_projeto}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                  }else{
+                    tabela += `<td>Reservado ao Financeiro</td>`;
+                  }
+                }
+            tabela += "</tr>";
+          }
         });
         document.getElementById('corpo_tabela').innerHTML = tabela;
       }

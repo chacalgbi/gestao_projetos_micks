@@ -225,14 +225,18 @@
         if(ao_iniciar){
           let select_projetos = "<option selected disabled>Selecione um projeto</option>";
           array_projetos.map((item)=>{
-            if(item.aprovado == 'sim' || item.aprovado == 'pend'){
-              select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
+            if(sessionStorage.nivel === 'Financeiro'){
+              select_projetos += `<option value="${item.id}">${item.nome}</option>`;
             }else{
-              const pessoas = item.responsaveis.split(", ");
-              if(pessoas.includes(sessionStorage.nome)){
-                select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+              if(item.aprovado == 'sim' || item.aprovado == 'pend'){
+                select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
               }else{
-                select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
+                const pessoas = item.responsaveis.split(", ");
+                if(pessoas.includes(sessionStorage.nome)){
+                  select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+                }else{
+                  select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
+                }
               }
             }
           });

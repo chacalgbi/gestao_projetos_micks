@@ -120,7 +120,7 @@
             <div class="input-group mb-3"><span class="input-group-text">OBS: </span><textarea class="form-control"
                 rows="3" id="obs_insert"></textarea></div>
             <div class="input-group mb-3"><span class="input-group-text">Data Retirada: </span><input type="date"
-                class="form-control" id="data_retirada"></div>
+                class="form-control" id="data_retirada" onchange="verificar_terca_quinta(this.value)"></div>
           </form>
         </div>
         <div class="modal-footer">
@@ -292,6 +292,7 @@
           cancelButtonText: 'Cancelar'
       })
       .then((result) => {
+        if (result.isConfirmed) {
           axios.post(`${ip}gasto_update`, {id: id}).then(function (response) {
               if(response.data.erroGeral === 'sim'){
                 Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
@@ -309,6 +310,13 @@
             console.log(error);
             Swal.fire( 'Erro!', `${error}`, 'error' );
           });
+        }else{
+          Swal.fire(
+            'Cancelado!',
+            'A aprovação do gasto foi cancelada.',
+            'info'
+          )
+        }
       })
     }
 
@@ -407,6 +415,16 @@
       array_gastos = await gastos_por_projeto(myParam);
       //console.log(array_gastos);
       listar_tabela();
+    }
+
+    function verificar_terca_quinta(data){
+      let retirada = new Date(data);
+      let dia_semana = retirada.getDay();
+      if(dia_semana === 1 || dia_semana === 3){
+        
+      }else{
+        Swal.fire('ATENÇÃO!', 'Retirada de gastos apenas as Terças e Quintas!', 'info' );
+      }
     }
 
     async function buscar_uploads(id){

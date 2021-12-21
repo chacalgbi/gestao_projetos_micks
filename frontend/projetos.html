@@ -239,12 +239,6 @@
                             <td><i class='bx bx-filter-alt bx-md' title="Não é possível editar um projeto pendente de aprovação" style='color: #FFEB47'></i></td>
                             `;
                           }else{
-                            if(sessionStorage.nivel === "Financeiro"){
-                              tabela += `
-                              <td title="Reservado para o pessoal dos Projetos"><i class='bx bx-message-x bx-md'></i></td>
-                              <td title="Reservado para o pessoal dos Projetos"><i class='bx bx-message-rounded-x bx-md'></i></td>
-                              `;
-                            }else{
                               tabela += `
                               <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.id}', '${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
                               <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
@@ -258,7 +252,6 @@
                                 data-bs-concluido="${item.concluido}"
                                 data-bs-obs="${item.obs}"
                               ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
-                            }
                           }
                         tabela += "</tr>";
                       }
@@ -302,7 +295,7 @@
                 }else{
                   Swal.fire({ icon: 'success', title: 'Aprovação enviada!', text: `Com ${response.data.msg}` });
                   // Envia Mensagem via telegram pedido a aprovaçao do projeto.
-                  const obj_msg = {msg: `${responsavel} enviou o projeto ${projeto} no valor de R$${valor} para aprovação!`}
+                  const obj_msg = {msg: `${responsavel} enviou o projeto ${projeto} para aprovação!`}
                   axios.post(`${ip}telegram`, obj_msg).then(function (response) { 
                     Swal.fire({ icon: 'success', title: 'Solicitação de aprovação enviada no grupo do Telegram!', text: `${obj_msg.msg}` });
                   }).catch(function (error) {
@@ -319,7 +312,7 @@
             Swal.fire(
               'Cancelado!',
               'O envio do projeto foi cancelado.',
-              'success'
+              'info'
             )
           }
         })
