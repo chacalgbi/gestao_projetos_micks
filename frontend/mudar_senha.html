@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/img/icon.png">
+    <title>Mudar Senha</title>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="./assets/dist/js/jquery-3.6.0.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./assets/dist/js/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/boxicons@2.1.0/dist/boxicons.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.0/css/boxicons.min.css' rel='stylesheet'>
+    <script src="./assets/dist/js/pace.js"></script>
+    <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
+    <script src="./assets/dist/js/notify.js"></script>
+    <style>
+      body {
+        background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+      #corpo{
+        background-color: #1C1C1C;
+      }
+      #principal{
+        background-color: #242323;
+        opacity : 0.7;
+      }
+      .infor{
+        background-color: #4b4a4a;
+        border-radius: 20px;
+        margin-left: 8px;
+        margin-top: 3px;
+        padding: 0.4rem;
+      }
+      .modais{
+        background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+      .modal-title{
+        color: aliceblue;
+      }
+      .modal-body{
+        color: aliceblue;
+      }
+    </style>
+</head>
+<body>
+    <br/><br/>
+    <div id="principal" class="container-fluid p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+        
+        <div class="row d-flex justify-content-evenly">
+          <div class="info col-sm-5">
+            <div class="modal-header">
+              </div>
+              <h1>ALTERAR SENHA</h1>
+              <div class="modal-body">
+                <form>
+                  <div class="input-group mb-3"><span class="input-group-text">Usuário:</span><input type="text" class="form-control" id="usuario"></div>
+                  <div class="input-group mb-3"><span class="input-group-text">Senha Antiga:</span><input type="text" class="form-control" id="senha_antiga"></div>
+                  <div class="input-group mb-3"><span class="input-group-text">Nova Senha:</span><input type="text" class="form-control" id="nova_senha"></div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_editar" onclick="alterar_senha()">Alterar</button>
+              </div>
+          </div>
+        </div>
+      </div>
+
+    <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        //var ip = 'http://localhost:8088/';
+        var ip = 'http://172.17.1.163:8088/';
+
+        function mudar_nova_senha(id){
+            let nova_senha = document.getElementById('nova_senha').value;
+
+            axios.post(`${ip}nova_senha`, {  id, nova_senha })
+            .then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == 'sim'){
+                  sessionStorage.login = 'NOT';
+                  Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+                }else{
+                    Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Senha alterada com sucesso! Faça logoff no sistema e entre novamente com a nova senha' });
+                    setTimeout(function() { location.replace("mudar_senha.html"); }, 5000);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                $.notify(`${error}`, "error");
+            });
+            
+        }
+
+        function login(){
+
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha_antiga').value;
+            let nova_senha = document.getElementById('nova_senha').value;
+
+            axios.post(`${ip}login`, {  usuario, senha })
+            .then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == 'sim'){
+                  sessionStorage.login = 'NOT';
+                  Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+                }else{
+                  if(response.data.dados.resposta.length == 0){
+                    Swal.fire({ icon: 'error', title: 'Opss..!', text: 'Usuário ou senha inválido' });
+                  }
+                  else{
+                    Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Usuário verificado' });
+                    mudar_nova_senha(response.data.dados.resposta[0].id);
+                  }
+                }
+                
+            })
+            .catch(function (error) {
+                console.log(error);
+                $.notify(`${error}`, "error");
+            });
+
+        }
+
+        function aviso(id, frase){
+            $(`#${id}`).notify( 
+                `${frase}`, 
+                { position:'top left', className:'error', autoHideDelay:2000 }
+            );
+        }
+
+        function alterar_senha(){
+            let usuario = document.getElementById('usuario').value;
+            let senha_antiga = document.getElementById('senha_antiga').value;
+            let nova_senha = document.getElementById('nova_senha').value;
+
+            if(usuario.length < 3){
+                aviso('usuario', 'Insira um nome de usuário válido!');
+            }else if(senha_antiga.length < 3){
+                aviso('senha_antiga', 'Insira uma valor de senha válido!');
+            }else if(nova_senha.length < 3){
+                aviso('nova_senha', 'Insira um valor de nova senha válido!');
+            }else{
+                login();
+            }
+        }
+    </script>
+</body>
+</html>

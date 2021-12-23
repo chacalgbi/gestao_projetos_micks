@@ -21,6 +21,7 @@ const upload = multer({storage});
 const routes = new Router();
 
 routes.post('/login', gestao.login);
+routes.post('/nova_senha', gestao.nova_senha);
 routes.get('/listar_usuarios', gestao.listar_usuarios);
 routes.post('/telegram', gestao.telegram);
 routes.get('/categorias_read', gestao.categorias_read);

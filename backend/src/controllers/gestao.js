@@ -28,6 +28,24 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async nova_senha(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query = `UPDATE login SET senha="${req.body.nova_senha}" WHERE id=${req.body.id};`;
+
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async listar_usuarios(req, res){
     tudo_ok = true;
     resp = {};
@@ -209,9 +227,12 @@ class gestao{
   async projetos_update(req, res){
     tudo_ok = true;
     resp = {};
-    const obs = req.body.obs.replace(/'|"/g, "");
-    const query = `UPDATE projetos SET nome="${req.body.nome}", programa="${req.body.programa}", 
-    responsaveis="${req.body.resp}", objetivo="${req.body.objetivo}", previsao_inicio="${req.body.inicio}", 
+    const nome     = req.body.nome.replace(/'|"/g, "");
+    const objetivo = req.body.objetivo.replace(/'|"/g, "");
+    const obs      = req.body.obs.replace(/'|"/g, "");
+
+    const query = `UPDATE projetos SET nome="${nome}", programa="${req.body.programa}", 
+    responsaveis="${req.body.resp}", objetivo="${objetivo}", previsao_inicio="${req.body.inicio}", 
     previsao_fim="${req.body.fim}", obs="${obs}", concluido="${req.body.concluido}" WHERE id="${req.body.id}";`;
 
     await BD(query).then((ok)=>{
@@ -229,8 +250,10 @@ class gestao{
   async projetos_insert(req, res){
     tudo_ok = true;
     resp = {};
-    const obs = req.body.obs.replace(/'|"/g, "");
-    const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${req.body.nome}', '${req.body.programa}', '${req.body.resp}', '${req.body.objetivo}', '${req.body.inicio}', '${req.body.fim}', '${obs}', '${req.body.concluido}', 'nao');`;
+    const nome     = req.body.nome.replace(/'|"/g, "");
+    const objetivo = req.body.objetivo.replace(/'|"/g, "");
+    const obs      = req.body.obs.replace(/'|"/g, "");
+    const query = `INSERT INTO projetos (nome, programa, responsaveis, objetivo, previsao_inicio, previsao_fim, obs, concluido, aprovado) values ('${nome}', '${req.body.programa}', '${req.body.resp}', '${objetivo}', '${req.body.inicio}', '${req.body.fim}', '${obs}', '${req.body.concluido}', 'nao');`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
@@ -294,11 +317,12 @@ class gestao{
   async itens_insert(req, res){
     tudo_ok = true;
     resp = {};
-    const obs = req.body.obs.replace(/'|"/g, "");
+    const nome     = req.body.nome.replace(/'|"/g, "");
+    const obs      = req.body.obs.replace(/'|"/g, "");
     
     const query = `INSERT INTO itens
     (id_projeto, nome, qtd, preco_uni, preco_total, forma_pagamento, categoria, obs) values
-    ('${req.body.id_projeto}','${req.body.nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
+    ('${req.body.id_projeto}','${nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
     '${req.body.forma_pagamento}','${req.body.categoria}','${obs}');`;
 
     await BD(query).then((ok)=>{
@@ -315,8 +339,10 @@ class gestao{
   async itens_update(req, res){
     tudo_ok = true;
     resp = {};
-    const obs = req.body.obs.replace(/'|"/g, "");
-    const query = `UPDATE itens SET id_projeto="${req.body.id_projeto}", nome="${req.body.nome}", qtd="${req.body.qtd}", 
+    const nome     = req.body.nome.replace(/'|"/g, "");
+    const obs      = req.body.obs.replace(/'|"/g, "");
+
+    const query = `UPDATE itens SET id_projeto="${req.body.id_projeto}", nome="${nome}", qtd="${req.body.qtd}", 
     preco_uni='${req.body.preco_uni}', preco_total="${req.body.preco_total}", forma_pagamento="${req.body.forma_pagamento}", 
     categoria="${req.body.categoria}", obs="${obs}" WHERE id="${req.body.id}";`;
 
@@ -386,7 +412,8 @@ class gestao{
   async inserir_aprovacao(req, res){
     tudo_ok = true;
     resp = {};
-    const obs_1 = req.body.obs_1;
+    const obs_1 = req.body.obs_1.replace(/'|"/g, "");
+    
     const query = `INSERT INTO aprovacao
     (id_projeto, projeto, programa, responsavel, valor, hora_solicitacao, obs_1, status) values
     ('${req.body.id_projeto}','${req.body.projeto}','${req.body.programa}','${req.body.responsavel}','${req.body.valor}',NOW(),'${obs_1}','Pendente');`;
