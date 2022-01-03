@@ -148,6 +148,7 @@
       var ip = sessionStorage.ip;
       const urlParams = new URLSearchParams(window.location.search);
       var nome_projeto = '';
+      var programa_do_projeto_atual = '';
         var myParam = urlParams.get('id');
         if(myParam == null){ myParam = 0; }
       var array_pagamentos = [];
@@ -181,7 +182,9 @@
                 document.getElementById('btn_cadastrar_item').style.display = 'none';
               }
             }
-            if(x.id == myParam){ nome_projeto = x.nome; }
+            if(x.id == myParam){ 
+              nome_projeto = x.nome;
+            }
           });
 
           tabela += "<tr>";
@@ -227,7 +230,7 @@
         if(ao_iniciar){
           let select_projetos = "<option selected disabled>Selecione um projeto</option>";
           array_projetos.map((item)=>{
-            if(item.id == myParam){
+            if(item.programa == programa_do_projeto_atual){
               if(sessionStorage.nivel === 'Financeiro'){
                 select_projetos += `<option value="${item.id}">${item.nome}</option>`;
               }else{
@@ -371,6 +374,12 @@
           array_categorias = await listar_categorias();
           array_itens      = await listar_itens_projeto(myParam);
           array_projetos   = await listar_projetos();
+
+          //Pega apenas os projetos do programa que o projeto atual faz parte
+          array_projetos.forEach((x)=>{ 
+            if(x.id == myParam){ programa_do_projeto_atual = x.programa; }
+          });
+
           preencher_tabela();
         }
       }
@@ -399,8 +408,9 @@
         let proj_id = button.getAttribute('data-bs-id_projeto');
         let proj_str = '';
         array_projetos.map((proj)=>{
-          if(sessionStorage.nivel === 'Financeiro'){
-            proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
+          if(proj.programa == programa_do_projeto_atual){
+            if(sessionStorage.nivel === 'Financeiro'){
+              proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
             }else{
               if(proj.aprovado == 'sim'){
                 proj_str += `<option disabled>${proj.nome} - Aprovado</option>`;
@@ -417,6 +427,8 @@
                 } 
               }
             }
+          }
+
         });
         document.getElementById('projeto_edit').innerHTML = proj_str;
 

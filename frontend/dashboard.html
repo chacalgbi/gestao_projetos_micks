@@ -109,6 +109,7 @@
         let tabela = '';
         let prog_total = 0;
         let prog_gasto = 0;
+        let soma_total_projetos = 0;
 
         array_projetos.map((item, index)=>{
           let imagem = '';
@@ -128,6 +129,8 @@
           valor_gasto = valor_gasto ? valor_gasto : 0;
 
           let saldo_disponivel = valor_total - valor_gasto;
+
+          soma_total_projetos = soma_total_projetos + valor_total;
 
           let porcent = parseFloat((valor_gasto * 100) / valor_total).toFixed(1);
           porcent = porcent ? porcent : 0;
@@ -164,6 +167,8 @@
                 tabela += `<td><a role="button" class="btn btn-outline-info" title="Itens do Projeto" href="itens_projeto.html?id=${item.id}"><i class='bx bx-list-ul bx-md'></i></a></td>`;
                 if(valor_gasto >= valor_total || item.aprovado === 'nao'){
                   tabela += `<td class="text-center"><i class='bx bxs-x-circle bx-md' title="Projeto Bloqueado! Não pode solicitar gastos para ele" style="color: red"></i></td>`;
+                }else if(item.aprovado === 'pend'){
+                  tabela += `<td title="Pendente de aprovação"><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
                 }else{
                   tabela += `<td class="text-center"><a role="button" class="btn btn-outline-warning" title="Solicitar Gasto para o Projeto" href="gastos.html"><i class='bx bx-dollar bx-md'></i></a></td>`;
                 }
@@ -197,16 +202,19 @@
 
         let barra_progress = `<div class="progress-bar bg-${cor_barra_prog}" id="progress_parcial" role="progressbar" style="width: ${prog_porcent}%" aria-valuenow="${prog_porcent}" aria-valuemin="0" aria-valuemax="100">${prog_porcent}%</div>`;
         let real = prog_total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2});
+        let real1 = soma_total_projetos.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2});
 
         document.getElementById('corpo_tabela').innerHTML = tabela;
         document.getElementById('programa_progresso').innerHTML = barra_progress;
-        document.getElementById('programa_total').innerHTML = `<h5>Soma dos projetos aprovados: ${real}</h5>`;
+        document.getElementById('programa_total').innerHTML = `Soma de Todos os Projetos: <strong style="color:DarkOrange;">${real1}</strong></br>Soma dos Projetos aprovados: <strong style="color:LawnGreen;">${real}</strong>`;
         document.getElementById('div_info').style.display = 'block';
+
       }
 
       async function iniciar(){
         if(sessionStorage.login === "OK"){
-          array_programas = await listar_programas();
+          console.log(sessionStorage.nome);
+          array_programas = await programa_read_dashboard(sessionStorage.nome);
           let options = '<option selected disabled>Selecione um Programa para exibir os projetos relacionados</option>';
           array_programas.map((item, index)=>{
             options += `<option value="${item.id}?${item.total_pretendido.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}">${item.nome}</option>`;

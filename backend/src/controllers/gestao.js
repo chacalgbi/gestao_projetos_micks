@@ -82,8 +82,23 @@ class gestao{
   async programa_read(req, res){
     tudo_ok = true;
     resp = {};
-    const query = `SELECT *, DATE_FORMAT(hora, '%d/%m/%Y %H:%i') as hora1 FROM programa`;
+    const query = `SELECT *, DATE_FORMAT(hora, '%d/%m/%Y %H:%i') as hora1 FROM programa;`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
 
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async programa_read_dashboard(req, res){
+    tudo_ok = true;
+    resp = {};
+    console.log(req.body.user);
+    const query = `SELECT pr.id, pr.nome, pr.total_pretendido FROM projetos pj JOIN programa pr ON pr.id = pj.programa WHERE pj.responsaveis LIKE "%${req.body.user}%" GROUP BY pj.programa`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
@@ -250,6 +265,7 @@ class gestao{
   async projetos_insert(req, res){
     tudo_ok = true;
     resp = {};
+
     const nome     = req.body.nome.replace(/'|"/g, "");
     const objetivo = req.body.objetivo.replace(/'|"/g, "");
     const obs      = req.body.obs.replace(/'|"/g, "");
@@ -258,12 +274,37 @@ class gestao{
       resp.dados = ok;
       resp.msg = "Sucesso"; 
     }).catch((erro)=>{
-      
       tudo_ok = false;
       resp.msg = erro;      
     });
 
+/*
+    if(req.body.check_item == true){
+
+      await BD("SELECT MAX(id) as id_max FROM projetos;").then((ok)=>{
+        resp.dados = ok;
+        resp.msg = "Sucesso";
+        console.log(resp.dados.resposta);
+      }).catch((erro)=>{
+        tudo_ok = false;
+        resp.msg = erro;      
+      });
+
+      const query1 = `INSERT INTO itens
+    (id_projeto, nome, qtd, preco_uni, preco_total, forma_pagamento, categoria, obs) values
+    ('${req.body.id_projeto}','${nome}','${req.body.qtd}','${req.body.preco_uni}','${req.body.preco_total}',
+    '${req.body.forma_pagamento}','${req.body.categoria}','${obs}');`;
+       await BD(query1).then((ok)=>{
+        resp.dados = ok;
+        resp.msg = "Sucesso"; 
+      }).catch((erro)=>{
+        tudo_ok = false;
+        resp.msg = erro;      
+      });
+    }
+*/
     API(resp, res, 200, tudo_ok);
+
   }
 
   async categorias_read(req, res){
@@ -439,6 +480,31 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async indeferir_aprovacao(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query1 = `DELETE FROM aprovacao WHERE id="${req.body.id}";`;
+    await BD(query1).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    const query2 = `UPDATE projetos SET aprovado="nao" WHERE id="${req.body.id_projeto}";`;
+    await BD(query2).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async listar_aprovacao(req, res){
     tudo_ok = true;
     resp = {};
@@ -506,6 +572,7 @@ class gestao{
     resp = {};
     const query = `SELECT gastos.*, 
     DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora, 
+    DATE_FORMAT(entregue, '%d/%m/%Y %H:%i') as entregue1, 
     DATE_FORMAT(data_retirada, '%d/%m/%Y') as data1, 
     FORMAT(valor, 2, 'pt_BR') as reais, 
     programa.nome AS prog, 
@@ -529,11 +596,56 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async gasto_read_limit(req, res){
+    tudo_ok = true;
+    resp = {};
+    const query = `SELECT gastos.*, 
+    DATE_FORMAT(hora_solicitacao, '%d/%m/%Y %H:%i') as hora, 
+    DATE_FORMAT(entregue, '%d/%m/%Y %H:%i') as entregue1, 
+    DATE_FORMAT(data_retirada, '%d/%m/%Y') as data1, 
+    FORMAT(valor, 2, 'pt_BR') as reais, 
+    programa.nome AS prog, 
+    projetos.nome AS proj, 
+    itens.nome AS item 
+    FROM gastos 
+    INNER JOIN programa ON gastos.id_programa = programa.id 
+    INNER JOIN projetos ON gastos.id_projeto = projetos.id 
+    INNER JOIN itens ON gastos.id_item = itens.id
+    ORDER BY aprovado, hora_solicitacao DESC LIMIT 8;
+    `;
+
+    await BD(query).then((ok)=>{  
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async gasto_update(req, res){
     tudo_ok = true;
     resp = {};
 
     const query = `UPDATE gastos SET aprovado='sim' WHERE id="${req.body.id}";`;
+    await BD(query).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
+  async gasto_entregue(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query = `UPDATE gastos SET entregue=NOW() WHERE id="${req.body.id}";`;
     await BD(query).then((ok)=>{
       resp.dados = ok;
       resp.msg = "Sucesso"; 

@@ -257,6 +257,26 @@ function listar_programas(){
     });
 }
 
+function programa_read_dashboard(user){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.post(`${ip}programa_read_dashboard`,{user}).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            $.notify(`${error}`, "error");
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
 function listar_itens_projeto(id){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
@@ -341,6 +361,26 @@ function listar_gastos(){
     const ip = sessionStorage.ip;
     return new Promise(function(resolve, reject){
         axios.get(`${ip}gasto_read`).then(function (response) {
+            //console.log(response.data);
+            if(response.data.erroGeral == "sim"){
+                Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                reject(error);
+            }else{
+                resolve(response.data.dados.resposta);
+            }
+        })
+        .catch(function (error) {
+            $.notify(`${error}`, "error");
+            console.log(error);
+            reject(error);
+        });
+    });
+}
+
+function listar_gastos_limit(){
+    const ip = sessionStorage.ip;
+    return new Promise(function(resolve, reject){
+        axios.get(`${ip}gasto_read_limit`).then(function (response) {
             //console.log(response.data);
             if(response.data.erroGeral == "sim"){
                 Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });

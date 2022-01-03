@@ -15,6 +15,13 @@
     <script src="./assets/dist/js/pace.js"></script>
     <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
     <script src="./assets/dist/js/notify.js"></script>
+    <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
+    <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
+    <script src='//cdn.datatables.net/searchbuilder/1.3.0/js/dataTables.searchBuilder.min.js'></script>
+    <script src='//cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js'></script>
+    <script src='//cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js'></script>
     <style>
       body {
         background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
@@ -61,8 +68,9 @@
         </div>
       </div>
       <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Projeto</button>
+      <br/><br/>
       <div class="row info justify-content-center" id="info">
-        <table class="table table-dark table-striped table-hover">
+        <table class="table table-dark table-striped table-hover" id="TableFilter">
           <thead>
              <tr>
                <th>#</th>
@@ -71,11 +79,11 @@
                <th>Envolvidos</th>
                <th>Objetivo</th>
                <th>Itens</th>
-               <th>Previsão de Início</th>
-               <th>Previsão de Finalização</th>
+               <th>Prev Início</th>
+               <th>Prev Fim</th>
                <th>Concluído</th>
                <th>OBS</th>
-               <th>Valor do Projeto</th>
+               <th>Valor Projeto</th>
                <th>Status</th>
                <th>Solicitar Aprovação</th>
                <th>Editar</th>
@@ -127,9 +135,13 @@
           <div class="modal-body">
             <form>
               <div class="input-group mb-3"><span class="input-group-text">Nome:</span><input type="text" class="form-control" id="nome_insert"></div>
+              <!--
+              <div class="input-group mb-3"><div id="item_insert"></div></div>
+              <div class="input-group mb-3"><span class="input-group-text"  style="display: none;" id="div_check">Preço Unit R$: </span><input style="display: none;" type="number" class="form-control" id="uni_insert" value="0"></div>
+              -->
               <div class="input-group mb-3"><span class="input-group-text">Programa:</span><select class="form-control" id="programa_insert"></select></div>
               <div class="input-group mb-3">Envolvidos:&nbsp&nbsp&nbsp&nbsp<div id="checks_insert"></div></div>
-              <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos_insert"></textarea></div>
+               <div class="input-group mb-3"><span class="input-group-text">Objetivos:</span><textarea class="form-control" rows="3" id="objetivos_insert"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">OBS:</span><textarea class="form-control" rows="3" id="obs_insert"></textarea></div>
               <div class="input-group mb-3"><span class="input-group-text">Prev. Início:</span><input type="date" class="form-control" id="prev_inicio_insert"></div>
               <div class="input-group mb-3"><span class="input-group-text">Prev. Fim:</span><input type="date" class="form-control" id="prev_fim_insert"></div>
@@ -146,11 +158,13 @@
 
     <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/dist/js/geral.js"></script>
+    <script src="./assets/dist/js/datatables.js"></script>
 
     <script>
       var ip = sessionStorage.ip;
       var array_programas = [];
       var soma_itens_projeto = [];
+      var projetoItem = false;
 
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
@@ -194,6 +208,7 @@
                     //console.log(response.data.dados.resposta);
                     $.notify(`${response.data.dados.resposta.length} projetos cadastrados`, "success");
                     let tabela = "";
+                    let indice = 1;
                     response.data.dados.resposta.map((item, index, array)=>{
                       let soma = '';
                       soma_itens_projeto.map((sum)=>{
@@ -216,16 +231,16 @@
                         }
                         tabela += "<tr>";
                           tabela += `
-                          <td>${index+1}</td>
+                          <td>${indice}</td>
                           <td>${item.nome}</td>
                           <td>${item.prog}</td>
-                          <td>${item.responsaveis}</td>
-                          <td>${item.objetivo}</td>
+                          <td title="${item.responsaveis}">${item.responsaveis.substring(10, 0)}...</td>
+                          <td title="${item.objetivo}">${item.objetivo.substring(10, 0)}...</td>
                           <td><a role="button" class="btn btn-outline-info" title="Itens do Projeto" href="itens_projeto.html?id=${item.id}"><i class='bx bx-list-ul bx-md'></i></a></td>
                           <td>${item.inicio}</td>
                           <td>${item.fim}</td>
                           <td>${item.concluido}</td>
-                          <td>${item.obs}</td>
+                          <td title="${item.obs}">${item.obs.substring(10, 0)}...</td>
                           <td>R$ ${soma}</td>
                           <td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
                           if(item.aprovado === 'sim'){
@@ -254,9 +269,11 @@
                               ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
                           }
                         tabela += "</tr>";
+                        indice ++;
                       }
                     });
                     tabela_.innerHTML = tabela;
+                    dataTables();
                   } 
               })
               .catch(function (error) { console.log(error) });
@@ -319,30 +336,42 @@
       }
 
       function inserir_projeto(){
-        let obj_insert = {
-          nome: document.getElementById('nome_insert').value,
-          programa: document.getElementById('programa_insert').value,
-          resp: select_users("checks_insert"),
-          objetivo: document.getElementById('objetivos_insert').value,
-          inicio: document.getElementById('prev_inicio_insert').value,
-          fim: document.getElementById('prev_fim_insert').value,
-          obs: document.getElementById('obs_insert').value,
-          concluido: document.getElementById('concluido_insert').value,
-        }
-        console.log(obj_insert);
-        
-        if(obj_insert.nome === '' || obj_insert.programa === '' || obj_insert.resp === '' || obj_insert.inicio === '' || obj_insert.fim === '' || obj_insert.objetivo === '' || obj_insert.concluido === ''){
-          Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
+        let program = document.getElementById('programa_insert').value;
+        let valor_item = parseFloat(document.getElementById('uni_insert').value.replace(",","."));
+        let check_item = projetoItem;
+
+        if(program.length > 4){
+          Swal.fire({ icon: 'error', title: 'Oops...', text: 'Selecione um Programa' });
         }else{
-          axios.post(`${ip}projetos_insert`,obj_insert).then(function (response) {
-              if(response.data.erroGeral === 'sim'){
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
-              }else{
-                $("#btn_inserir").notify( "Projeto cadastrado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
-                setTimeout(function() { location.replace("projetos.html"); }, 2000);
-              }
-          })
-          .catch(function (error) { console.log(error) });
+
+          let obj_insert = {
+            nome: document.getElementById('nome_insert').value,
+            programa: document.getElementById('programa_insert').value,
+            resp: select_users("checks_insert"),
+            objetivo: document.getElementById('objetivos_insert').value,
+            inicio: document.getElementById('prev_inicio_insert').value,
+            fim: document.getElementById('prev_fim_insert').value,
+            obs: document.getElementById('obs_insert').value,
+            concluido: document.getElementById('concluido_insert').value,
+            valor_item: valor_item,
+            check_item: check_item
+          }
+          //console.log(obj_insert);
+          
+          if(obj_insert.nome === '' || obj_insert.programa === '' || obj_insert.resp === '' || obj_insert.inicio === '' || obj_insert.fim === ''){
+            Swal.fire({ icon: 'info', title: 'Oops...', text: 'Preencha todos os campos!' });
+          }else{
+            axios.post(`${ip}projetos_insert`,obj_insert).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro interno, procure o ADMIN' });
+                }else{
+                  $("#btn_inserir").notify( "Projeto cadastrado com sucesso!", { position:'top left', className:'success', autoHideDelay:2000 });
+                  setTimeout(function() { location.replace("projetos.html"); }, 2000);
+                }
+            })
+            .catch(function (error) { console.log(error) });
+          }
+
         }
       }
 
@@ -372,6 +401,25 @@
               }
           })
           .catch(function (error) { console.log(error) });
+        }
+      }
+
+      function projeto_e_item(){
+        let marcar = `<div class="form-check"> &nbsp&nbsp <input class="form-check-input" type="checkbox" value="1" id="1" onchange="exibir_valor(this.value)">Projeto + Item?</div>`;
+        document.getElementById('item_insert').innerHTML = marcar;
+      }
+
+      function exibir_valor(value){
+        if(value === '1'){
+          projetoItem = !projetoItem;
+        }
+        if(projetoItem === true){
+          document.getElementById('div_check').style.display = 'block';
+          document.getElementById('uni_insert').style.display = 'block';
+
+        }else{
+          document.getElementById('div_check').style.display = 'none';
+          document.getElementById('uni_insert').style.display = 'none';
         }
       }
 
@@ -434,6 +482,10 @@
 
         //Coloca todos os usuários do sistema em checkbox no modal de cadastro.
         list_users('checks_insert', true);
+
+        if(sessionStorage.nivel === 'Financeiro'){
+          projeto_e_item();
+        }
         
       });
 

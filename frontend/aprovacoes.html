@@ -15,6 +15,13 @@
     <script src="./assets/dist/js/pace.js"></script>
     <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
     <script src="./assets/dist/js/notify.js"></script>
+    <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
+    <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
+    <script src='//cdn.datatables.net/searchbuilder/1.3.0/js/dataTables.searchBuilder.min.js'></script>
+    <script src='//cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js'></script>
+    <script src='//cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js'></script>
     <style>
       body {
         background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
@@ -61,7 +68,7 @@
         </div>
       </div>
       <div class="row info justify-content-center" id="info">
-        <table class="table table-dark table-striped table-hover">
+        <table class="table table-dark table-striped table-hover" id="TableFilter">
           <thead>
              <tr>
                <th>#</th>
@@ -76,6 +83,7 @@
                <th>Data/Hora Aprovação</th>
                <th>Observação Financeira</th>
                <th>Aprovar</th>
+               <th>Indeferir</th>
              </tr>
           </thead>
           <tbody id="corpo_tabela">
@@ -86,6 +94,7 @@
 
     <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/dist/js/geral.js"></script>
+    <script src="./assets/dist/js/datatables.js"></script>
 
     <script>
       var ip = sessionStorage.ip;
@@ -122,10 +131,13 @@
                 tabela += `<td>${item.obs_2 == null ? "" : item.obs_2}</td>`;
                 if(item.status === 'Aprovado'){
                   tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado pelo Financeiro"><i class='bx bxs-credit-card bx-lg' style='color: Lime'></i></td>`;
+                  tabela += `<td title="Projeto ${item.projeto.toUpperCase()} Aprovado pelo Financeiro"><i class='bx bxs-credit-card bx-lg' style='color: Lime'></i></td>`;
                 }else{
                   if(sessionStorage.nivel === 'Financeiro'){
                     tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Projeto" onclick="aprovar('${item.projeto}', '${item.id}', '${item.id_projeto}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                    tabela += `<td><button type="button" class="btn btn-danger" title="Indeferir Projeto" onclick="indeferir('${item.projeto}', '${item.id}', '${item.id_projeto}', '${sessionStorage.nome}', '${item.valor}')"><i class='bx bxs-hand bx-md'></i></button></td>`;
                   }else{
+                    tabela += `<td>Reservado ao Financeiro</td>`;
                     tabela += `<td>Reservado ao Financeiro</td>`;
                   }
                 }
@@ -133,6 +145,7 @@
           }
         });
         document.getElementById('corpo_tabela').innerHTML = tabela;
+        dataTables();
       }
 
       function aprovar(projeto, id, id_projeto, nome, valor){
@@ -165,7 +178,7 @@
                 }else{
                   Swal.fire({ icon: 'success', title: 'Projeto Aprovado!', text: `Com ${response.data.msg}` });
                   // Envia Mensagem via telegram pedido a aprovaçao do projeto.
-                  const obj_msg = {msg: `${nome} aprovou o Projeto ${projeto} no valor de R$${valor}.`}
+                  const obj_msg = {msg: `${nome} aprovou o Projeto ${projeto}.`}
                   axios.post(`${ip}telegram`, obj_msg).then(function (response) {
                     Swal.fire({ icon: 'success', title: 'Aprovação enviada no grupo do Telegram!', text: `${obj_msg.msg}` });
                     setTimeout(function() { location.replace("aprovacoes.html"); }, 5000);
@@ -182,7 +195,56 @@
           }else{
             Swal.fire(
               'Cancelado!',
-              'O envio do projeto foi cancelado.',
+              'A aprovação do projeto foi cancelada.',
+              'success'
+            )
+          }
+        })
+      }
+
+      function indeferir(projeto, id, id_projeto, nome, valor){
+        Swal.fire({
+          title: `Deseja INDEFERIR o projeto "${projeto}"?`,
+          text: "O projeto deverá ser modificado e enviado para aprovação novamente.",
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'SIM',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            let obj_aprovar = {
+              id: id,
+              id_projeto: id_projeto,
+              quem_aprovou: nome,
+            }
+
+            axios.post(`${ip}indeferir_aprovacao`, obj_aprovar).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
+                  console.log(response.data.msg.resposta);
+                }else{
+                  Swal.fire({ icon: 'success', title: 'Projeto INDEFERIDO!', text: `Com ${response.data.msg}` });
+                  // Envia Mensagem via telegram pedido a aprovaçao do projeto.
+                  const obj_msg = {msg: `${nome} INDEFERIU o Projeto ${projeto}. Faça os ajustes necessários!`}
+                  axios.post(`${ip}telegram`, obj_msg).then(function (response) {
+                    Swal.fire({ icon: 'success', title: 'INDEFERIMENTO enviado no grupo do Telegram!', text: `${obj_msg.msg}` });
+                    setTimeout(function() { location.replace("aprovacoes.html"); }, 5000);
+                  }).catch(function (error) {
+                    Swal.fire({ icon: 'error', title: 'Opa! Erro ao enviar mensagem no telegram', text: `${response.data.msg.resposta}` });
+                  });
+                }
+            })
+            .catch(function (error) {
+              console.log("Deu erro");
+              console.log(error);
+              Swal.fire( 'Erro!', `${error}`, 'error' );
+            });
+          }else{
+            Swal.fire(
+              'Cancelado!',
+              'O INDEFERIMENTO do projeto foi cancelado.',
               'success'
             )
           }

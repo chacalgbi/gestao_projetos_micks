@@ -15,6 +15,13 @@
     <script src="./assets/dist/js/pace.js"></script>
     <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
     <script src="./assets/dist/js/notify.js"></script>
+    <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
+    <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
+    <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
+    <script src='//cdn.datatables.net/searchbuilder/1.3.0/js/dataTables.searchBuilder.min.js'></script>
+    <script src='//cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js'></script>
+    <script src='//cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js'></script>
     <style>
       body {
         background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
@@ -54,15 +61,16 @@
   </head>
   <body>
     <div id="header"></div><br /><br /><br />
-    <div id="principal" class="container p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+    <div id="principal" class="container-fluid p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
       <div class="row d-flex justify-content-evenly">
-        <div class="info col-sm-11 d-flex justify-content-evenly">
+        <div class="info col-sm-12 d-flex justify-content-evenly">
           <h1>Itens</h1>
         </div>
       </div>
       <button type="button" onclick="abrir_cadastro_item()" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal_inserir">Cadastrar Itens</button>
+      <br/><br/>
       <div class="row info justify-content-center" id="info">
-        <table class="table table-dark table-striped table-hover">
+        <table class="table table-dark table-striped table-hover" id="TableFilter">
           <thead>
              <tr>
                <th>#</th>
@@ -73,7 +81,7 @@
                <th>Pre. Total</th>
                <th>Pagamento</th>
                <th>Categoria</th>
-               <th>OBS</th>
+               <th>Observações</th>
                <th>Editar</th>
                <th>Apagar</th>
              </tr>
@@ -99,6 +107,7 @@
               <div class="input-group mb-3"><span class="input-group-text">Quantidade:    </span><input type="number" class="form-control" id="qtd_edit" value="0"></div>
               <div class="input-group mb-3"><span class="input-group-text">Preço Unit R$: </span><input type="text"   class="form-control" id="uni_edit" value="0" onblur="calcular_total_parcial('edit')"></div>
               <div class="input-group mb-3"><span class="input-group-text">Preço Total R$:</span><input type="text"   class="form-control" id="total_edit" disabled></div>
+              <div class="input-group mb-3"><span class="input-group-text">Programa:      </span><select class="form-control" id="programa_edit" onchange="buscar_projetos_edit(this.value, 'projeto_edit')"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Projeto:       </span><select class="form-control" id="projeto_edit"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Pagamento:     </span><select class="form-control" id="pagamento_edit"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Categoria:     </span><select class="form-control" id="categoria_edit"></select></div>
@@ -127,6 +136,7 @@
               <div class="input-group mb-3"><span class="input-group-text">Quantidade:    </span><input type="number" class="form-control" id="qtd_insert" value="0"></div>
               <div class="input-group mb-3"><span class="input-group-text">Preço Unit R$: </span><input type="text"   class="form-control" id="uni_insert" value="0" onblur="calcular_total_parcial()"></div>
               <div class="input-group mb-3"><span class="input-group-text">Preço Total R$:</span><input type="text"   class="form-control" id="total_insert" disabled></div>
+              <div class="input-group mb-3"><span class="input-group-text">Programa:      </span><select class="form-control" id="programa_insert" onchange="buscar_projetos(this.value, 'projeto_insert')"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Projeto:       </span><select class="form-control" id="projeto_insert"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Pagamento:     </span><select class="form-control" id="pagamento_insert"></select></div>
               <div class="input-group mb-3"><span class="input-group-text">Categoria:     </span><select class="form-control" id="categoria_insert"></select></div>
@@ -143,13 +153,16 @@
     <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/dist/js/geral.js"></script>
     <script src="./assets/dist/js/jquery-mask.js"></script>
+    <script src="./assets/dist/js/datatables.js"></script>
 
     <script>
       var ip = sessionStorage.ip;
+      var array_programas = [];
       var array_pagamentos = [];
       var array_categorias = [];
       var array_projetos = [];
       var array_itens = [];
+      var id_do_projeto = '';
       $("#header").load("menu/menu.html");
       $(document).ready( function ($){
         //$('#uni_insert').mask('000.000.000.000.000,00', {reverse: true});
@@ -191,7 +204,7 @@
                 <td>${item.total.replace(",","+").replace(".",",").replace("+",".")}</td>
                 <td>${nome_pagamentos}</td>
                 <td>${nome_categoria}</td>
-                <td>${item.obs}</td>`;
+                <td title="${item.obs}">${item.obs.substring(10, 0)}...</td>`;
                 if(projeto_aprovado === false){
                   tabela += `
                     <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal_edit" title="Editar Item"
@@ -213,15 +226,70 @@
                     <td><i class='bx bx-error-alt bx-md' title="Não é possível apagar um item após o projeto aprovado."></i></td>
                   `;
                 }
-                tabela += "</tr>";            
+                tabela += "</tr>";
           }
 
         });
         document.getElementById('corpo_tabela').innerHTML = tabela;
+        dataTables();
+      }
+
+      async function buscar_projetos(id, id_tag){
+        let proj = await pegar_projetos_por_programa(id);
+        let select_projetos = "<option selected disabled>Selecione um projeto</option>";
+        proj.map((item)=>{
+            if(sessionStorage.nivel === 'Financeiro'){
+              select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+            }else{
+              if(item.aprovado == 'sim' || item.aprovado == 'pend'){
+                select_projetos += `<option disabled>${item.nome} - Aprovado</option>`;
+              }else{
+                const pessoas = item.responsaveis.split(", ");
+                if(pessoas.includes(sessionStorage.nome)){
+                  select_projetos += `<option value="${item.id}">${item.nome}</option>`;
+                }else{
+                  select_projetos += `<option disabled>${item.nome} - Sem permissão</option>`;
+                }
+              }
+            }
+        });
+        document.getElementById(id_tag).innerHTML = select_projetos;
+      }
+
+      async function buscar_projetos_edit(id, id_tag){
+        let project = await pegar_projetos_por_programa(id);
+        let proj_str = '';
+
+        project.map((proj)=>{
+          if(proj.aprovado == 'sim'){
+            proj_str += `<option disabled>${proj.nome} - Aprovado</option>`;
+          }else{
+            const pessoas = proj.responsaveis.split(", ");
+            if(pessoas.includes(sessionStorage.nome)){
+              if(id_do_projeto == proj.id){
+                proj_str += `<option value="${proj.id}" selected>${proj.nome}</option>`;
+              }else{
+                proj_str += `<option value="${proj.id}">${proj.nome}</option>`;
+              }
+            }else{
+              proj_str += `<option disabled>${proj.nome} - Sem permissão</option>`;
+            } 
+          }  
+        });
+        document.getElementById(id_tag).innerHTML = proj_str;
       }
 
       function abrir_cadastro_item(ao_iniciar=true){
-        // Colocar os options com os projetos para serem selecionados
+
+        // Colocar os options com os programas para serem selecionados
+        let select_progs = "<option selected disabled>Selecione um programa</option>";
+        array_programas.map((item)=>{
+          select_progs += `<option value="${item.id}">${item.nome}</option>`;
+        });
+        document.getElementById('programa_insert').innerHTML = select_progs;
+
+
+        // Colocar os options com os projetos para serem selecionados baseados no programa selecionado
         if(ao_iniciar){
           let select_projetos = "<option selected disabled>Selecione um projeto</option>";
           array_projetos.map((item)=>{
@@ -369,6 +437,7 @@
           array_categorias = await listar_categorias();
           array_itens      = await listar_itens();
           array_projetos   = await listar_projetos();
+          array_programas = await listar_programas();
           preencher_tabela();
         }
       }
@@ -393,8 +462,16 @@
         document.getElementById('total_edit').value = button.getAttribute('data-bs-preco_total');
         document.getElementById('obs_edit').value = button.getAttribute('data-bs-obs');
 
+        // Colocar os options com os programas para serem selecionados
+        let select_progs = "<option selected disabled>Selecione um programa</option>";
+        array_programas.map((item)=>{
+          select_progs += `<option value="${item.id}">${item.nome}</option>`;
+        });
+        document.getElementById('programa_edit').innerHTML = select_progs;
+
         //Listar os projetos criados para serem selecionados. E deixa o projeto atual já selecionado.
         let proj_id = button.getAttribute('data-bs-id_projeto');
+        id_do_projeto = proj_id;
         let proj_str = '';
         array_projetos.map((proj)=>{
           if(proj.aprovado == 'sim'){

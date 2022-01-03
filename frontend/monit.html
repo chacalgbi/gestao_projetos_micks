@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <link rel="shortcut icon" type="image/x-icon" href="./assets/img/icon.png">
+  <title>Aprovação de Gastos</title>
+  <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="./assets/dist/js/jquery-3.6.0.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./assets/dist/js/sweetalert2.all.min.js"></script>
+  <script src="https://unpkg.com/boxicons@2.1.0/dist/boxicons.js"></script>
+  <link href='https://unpkg.com/boxicons@2.1.0/css/boxicons.min.css' rel='stylesheet'>
+  <script src="./assets/dist/js/pace.js"></script>
+  <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
+  <script src="./assets/dist/js/notify.js"></script>
+  <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
+  <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
+  <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
+  <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
+  <script src='//cdn.datatables.net/searchbuilder/1.3.0/js/dataTables.searchBuilder.min.js'></script>
+  <script src='//cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js'></script>
+  <script src='//cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js'></script>
+  <style>
+    body {
+      background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+
+    #corpo {
+      background-color: #1C1C1C;
+    }
+
+    #principal {
+      background-color: #242323;
+      opacity: 0.7;
+    }
+
+    .infor {
+      background-color: #4b4a4a;
+      border-radius: 20px;
+      margin-left: 8px;
+      margin-top: 3px;
+      padding: 0.4rem;
+    }
+
+    .modais {
+      background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+
+    .modal-title {
+      color: rgb(3, 30, 54);
+    }
+
+    .modal-body {
+      color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="header"></div><br /><br /><br />
+  <div id="principal" class="container-fluid p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
+    <div class="row d-flex justify-content-evenly">
+      <div class="info col-sm-11 d-flex justify-content-evenly">
+        <h1>Aprovação de Gastos</h1>
+      </div>
+    </div>
+    <div class="row info justify-content-center" id="info" style="display: none;">
+      <table class="table table-dark table-striped table-hover" id="TableFilter">
+        <thead style="font-size: 25px;">
+          <tr>
+            <th>#</th>
+            <th>Programa</th>
+            <th>Projeto</th>
+            <th>Item</th>
+            <th>Solicitante</th>
+            <th>Valor</th>
+            <th>Aprovado</th>
+            <th>Data/Hora Solicitação</th>
+            <th>OBS</th>
+            <th>Data da Retirada</th>
+            <th>Entregue?</th>
+          </tr>
+        </thead>
+        <tbody id="corpo_tabela" style="font-size: 25px;">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./assets/dist/js/datatables.js"></script>
+  <script>
+    //var ip = 'http://localhost:8088/';
+    var ip = 'http://172.17.1.163:8088/';
+    var array_programas = [];
+    var array_projetos = [];
+    var array_itens = [];
+    var array_gastos = [];
+    var array_totais = [];
+
+    function listar_programas(){
+        return new Promise(function(resolve, reject){
+            axios.get(`${ip}programa_read`).then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == "sim"){
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                    reject(error);
+                }else{
+                    resolve(response.data.dados.resposta);
+                }
+            })
+            .catch(function (error) {
+                $.notify(`${error}`, "error");
+                console.log(error);
+                reject(error);
+            });
+        });
+    }
+
+    function listar_projetos(){
+        return new Promise(function(resolve, reject){
+            axios.get(`${ip}listar_projetos`).then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == "sim"){
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                    reject(error);
+                }else{
+                    resolve(response.data.dados.resposta);
+                }
+            })
+            .catch(function (error) {
+                $.notify(`${error}`, "error");
+                console.log(error);
+                reject(error);
+            });
+        });
+    }
+
+    function listar_itens(){
+        return new Promise(function(resolve, reject){
+            axios.get(`${ip}itens_read`).then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == "sim"){
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                    reject(error);
+                }else{
+                    resolve(response.data.dados.resposta);
+                }
+            })
+            .catch(function (error) {
+                $.notify(`${error}`, "error");
+                console.log(error);
+                reject(error);
+            });
+        });
+    }
+
+    function listar_gastos(){
+        return new Promise(function(resolve, reject){
+            axios.get(`${ip}gasto_read_limit`).then(function (response) {
+                //console.log(response.data);
+                if(response.data.erroGeral == "sim"){
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: `${response.data.msg.resposta}` });
+                    reject(error);
+                }else{
+                    resolve(response.data.dados.resposta);
+                }
+            })
+            .catch(function (error) {
+                $.notify(`${error}`, "error");
+                console.log(error);
+                reject(error);
+            });
+        });
+    }
+
+    function listar_tabela(){
+      let tabela = '';
+      array_gastos.map((item, index)=>{
+          tabela += "<tr>";
+            tabela += `<td>${index+1}</td>`;
+            tabela += `<td>${item.prog}</td>`;
+            tabela += `<td>${item.proj}</td>`;
+            tabela += `<td>${item.item}</td>`;
+            tabela += `<td>${item.solicitante}</td>`;
+            tabela += `<td>${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;
+            if(item.aprovado == 'sim'){
+              tabela += `<td title="Gasto Aprovado"><i class='bx bxs-user-check bx-lg' style='color: Lime'></i></td>`;
+            }else{
+              tabela += `<td title="Gasto com aprovação pendente"><i class='bx bxs-user-x bx-lg bx-flashing' style='color: Crimson'></i></td>`;
+            }
+            tabela += `<td>${item.hora}</td>`;
+            tabela += `<td>${item.obs}</td>`;
+            tabela += `<td>${item.data1}</td>`;
+            if(item.aprovado == 'sim'){
+              tabela += `<td>Entregue em: ${item.entregue1}</td>`;
+            }else{
+              tabela += `<td>NÃO</td>`;
+            }
+        tabela += "</tr>";
+      });
+      document.getElementById('corpo_tabela').innerHTML = tabela;
+      document.getElementById('info').style.display = 'block';
+      //dataTables();
+    }
+
+    async function iniciar() {
+      //array_programas = await listar_programas();
+      //array_projetos = await listar_projetos();
+      //array_itens = await listar_itens();
+      array_gastos = await listar_gastos();
+      console.log(array_gastos);
+      listar_tabela();
+    }
+    
+    setInterval(function() { iniciar(); }, 30000);
+
+    iniciar();
+  </script>
+</body>
+
+</html>

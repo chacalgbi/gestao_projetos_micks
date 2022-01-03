@@ -16,6 +16,13 @@
   <script src="./assets/dist/js/pace.js"></script>
   <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
   <script src="./assets/dist/js/notify.js"></script>
+  <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
+  <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
+  <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
+  <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
+  <script src='//cdn.datatables.net/searchbuilder/1.3.0/js/dataTables.searchBuilder.min.js'></script>
+  <script src='//cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js'></script>
+  <script src='//cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js'></script>
   <style>
     body {
       background: url(./assets/img/concreto.jpg) no-repeat center top fixed;
@@ -70,8 +77,9 @@
     </div>
     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
       data-bs-target="#solicitar_gastos">Solicitar Gasto</button>
+      <br/><br/>
     <div class="row info justify-content-center" id="info" style="display: none;">
-      <table class="table table-dark table-striped table-hover">
+      <table class="table table-dark table-striped table-hover" id="TableFilter">
         <thead>
           <tr>
             <th>#</th>
@@ -81,10 +89,11 @@
             <th>Solicitante</th>
             <th>Valor</th>
             <th>Aprovado</th>
-            <th>Data/Hora Solicitação</th>
             <th>OBS</th>
             <th>Data da Retirada</th>
             <th>Aprovar Gastos</th>
+            <th>Solicitação</th>
+            <th>Entregue</th>
           </tr>
         </thead>
         <tbody id="corpo_tabela">
@@ -131,6 +140,7 @@
 
   <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./assets/dist/js/geral.js"></script>
+  <script src="./assets/dist/js/datatables.js"></script>
   <script>
     var ip = sessionStorage.ip;
     var array_programas = [];
@@ -260,6 +270,43 @@
       })
     }
 
+    function entregar_gasto(id, item, solicitante){
+      Swal.fire({
+          title: `Deseja MARCAR o gasto "${item}" como ENTREGUE?`,
+          text: "A operação não poderá ser desfeita",
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'SIM',
+          cancelButtonText: 'Cancelar'
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+            axios.post(`${ip}gasto_entregue`, {id: id}).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
+                  console.log(response.data.msg.resposta);
+                }else{
+                  Swal.fire({ icon: 'success', title: 'Gasto marcado como Entregue!', text: `Operação realizada com ${response.data.msg}` });
+                  setTimeout(function () { location.replace("gastos.html"); }, 3000);
+                }
+            })
+            .catch(function (error) {
+              console.log("Deu erro");
+              console.log(error);
+              Swal.fire( 'Erro!', `${error}`, 'error' );
+            });
+        }else{
+          Swal.fire(
+            'Cancelado!',
+            '',
+            'info'
+          )
+        }
+      })
+    }
+
     function listar_tabela(){
       let tabela = '';
       array_gastos.map((item, index)=>{
@@ -275,7 +322,6 @@
             }else{
               tabela += `<td title="Gasto com aprovação pendente"><i class='bx bxs-user-x bx-lg bx-flashing' style='color: Crimson'></i></td>`;
             }
-            tabela += `<td>${item.hora}</td>`;
             tabela += `<td>${item.obs}</td>`;
             tabela += `<td>${item.data1}</td>`;
             if(sessionStorage.nivel === 'Financeiro'){
@@ -287,10 +333,26 @@
             }else{
               tabela += `<td title="Reservado ao Financeiro"><i class='bx bx-link bx-lg' style='color: RoyalBlue'></i></td>`;
             }
+            tabela += `<td>Solicitado em: ${item.hora}</td>`;
+            if(item.entregue === null){
+              if(sessionStorage.nivel === 'Financeiro'){
+                if(item.aprovado == 'sim'){
+                  tabela += `<td><button type="button" class="btn btn-info" title="Marcar GASTO como entregue" onclick="entregar_gasto('${item.id}', '${item.item}', '${item.solicitante}')"><i class='bx bxs-award bx-md'></i></button></td>`;
+                }else{
+                  tabela += `<td>Ainda não foi aprovado</td>`;
+                }
+              }else{
+                tabela += `<td>Não</td>`;
+              }
+            }else{
+              tabela += `<td>Entregue em: ${item.entregue1}</td>`;
+            }
+            
         tabela += "</tr>";
       });
       document.getElementById('corpo_tabela').innerHTML = tabela;
       document.getElementById('info').style.display = 'block';
+      dataTables();
     }
 
     async function iniciar() {

@@ -174,7 +174,7 @@
       function verificar_tipo_programa(){
         tipo_programa = document.getElementById('mensal_insert').value;
         if(tipo_programa == 'sim'){
-          document.getElementById(`nome_insert`).value = "Planejamento Estratégico";
+          document.getElementById(`nome_insert`).value = "CONTROLE DE ORÇAMENTO";
           document.getElementById(`mes_insert`).focus();
           document.getElementById(`div_mes`).style.display = "block";
           $('#nome_insert').attr("disabled", true);
@@ -203,7 +203,7 @@
           else if(data[1]=='11'){mes = 'Novembro'}
           else if(data[1]=='12'){mes = 'Dezembro'}
 
-          document.getElementById(`nome_insert`).value = "Planejamento Estratégico - " + mes + " de " + data[0];
+          document.getElementById(`nome_insert`).value = "CONTROLE DE ORÇAMENTO - " + mes + " de " + data[0];
         }
       }
 
@@ -245,7 +245,7 @@
         }
       }
 
-      function salvar(){  
+      function salvar(){
         const id = document.getElementById('id_').innerHTML;
         const nome = document.getElementById('nome').value;
         const total = document.getElementById('total_edit').value.replace(",", ".");

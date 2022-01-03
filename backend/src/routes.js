@@ -30,6 +30,7 @@ routes.post('/upload', upload.single("file"), gestao.upload);
 routes.post('/upload_read', gestao.upload_read);
 
 routes.get('/programa_read', gestao.programa_read);
+routes.post('/programa_read_dashboard', gestao.programa_read_dashboard);
 routes.post('/programa_insert', gestao.programa_insert);
 routes.post('/programa_update', gestao.programa_update);
 routes.post('/programa_delete', gestao.programa_delete);
@@ -51,12 +52,15 @@ routes.get('/itens_soma', gestao.itens_soma);
 routes.post('/inserir_aprovacao', gestao.inserir_aprovacao);
 routes.get('/listar_aprovacao', gestao.listar_aprovacao);
 routes.post('/update_aprovacao', gestao.update_aprovacao);
+routes.post('/indeferir_aprovacao', gestao.indeferir_aprovacao);
 
 routes.post('/gasto_insert', gestao.gasto_insert);
 routes.post('/gasto_update', gestao.gasto_update);
 routes.post('/gasto_update_valor', gestao.gasto_update_valor);
 routes.post('/gasto_soma', gestao.gasto_soma);
 routes.get('/gasto_read', gestao.gasto_read);
+routes.get('/gasto_read_limit', gestao.gasto_read_limit);
 routes.post('/gastos_por_projeto', gestao.gastos_por_projeto);
+routes.post('/gasto_entregue', gestao.gasto_entregue);
 
 module.exports = routes;
