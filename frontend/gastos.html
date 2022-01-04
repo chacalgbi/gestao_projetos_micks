@@ -16,6 +16,8 @@
   <script src="./assets/dist/js/pace.js"></script>
   <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
   <script src="./assets/dist/js/notify.js"></script>
+  <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+  <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
   <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
   <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
   <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
@@ -91,7 +93,8 @@
             <th>Aprovado</th>
             <th>OBS</th>
             <th>Data da Retirada</th>
-            <th>Aprovar Gastos</th>
+            <th>Aprovar Gasto</th>
+            <th>Recusar Gasto</th>
             <th>Solicitação</th>
             <th>Entregue</th>
           </tr>
@@ -270,6 +273,46 @@
       })
     }
 
+    function indeferir_gasto(id, item, solicitante){
+      Swal.fire({
+          title: `Deseja RECUSAR o gasto "${item}" solicitado por ${solicitante}?`,
+          text: "Deverá ser feita uma nova solicitação",
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'SIM',
+          cancelButtonText: 'Cancelar'
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+            axios.post(`${ip}indeferir_gasto`, {id: id}).then(function (response) {
+                if(response.data.erroGeral === 'sim'){
+                  Swal.fire({ icon: 'error', title: 'Opa! Deu erro', text: `${response.data.msg.resposta}` });
+                  console.log(response.data.msg.resposta);
+                }else{
+                  Swal.fire({ icon: 'success', title: 'Gasto Recusado!', text: `Com ${response.data.msg}` });
+                  // Envia Mensagem via telegram pedido a aprovaçao do projeto.
+                  const obj_msg = {msg: `${sessionStorage.nome} RECUSOU o Gasto solicitado por ${solicitante} referente a ${item}.`}
+                  enviar_telegram(obj_msg);
+                  setTimeout(function () { location.replace("gastos.html"); }, 5000);
+                }
+            })
+            .catch(function (error) {
+              console.log("Deu erro");
+              console.log(error);
+              Swal.fire( 'Erro!', `${error}`, 'error' );
+            });
+        }else{
+          Swal.fire(
+            'Cancelado!',
+            'Recusa cancelada.',
+            'info'
+          )
+        }
+      })
+    }
+
     function entregar_gasto(id, item, solicitante){
       Swal.fire({
           title: `Deseja MARCAR o gasto "${item}" como ENTREGUE?`,
@@ -309,7 +352,8 @@
 
     function listar_tabela(){
       let tabela = '';
-      array_gastos.map((item, index)=>{
+      array_gastos.map((item, index)=>
+      {
         tabela += "<tr>";
             tabela += `<td>${index+1}</td>`;
             tabela += `<td>${item.prog}</td>`;
@@ -324,15 +368,23 @@
             }
             tabela += `<td>${item.obs}</td>`;
             tabela += `<td>${item.data1}</td>`;
+
+
+
             if(sessionStorage.nivel === 'Financeiro'){
-              if(item.aprovado == 'sim'){
-                tabela += `<td title="${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} Aprovado para o Projeto ${item.proj.toUpperCase()}"><i class='bx bx-check-shield bx-lg' style='color: Lime'></i></td>`;
-              }else{
-                tabela += `<td><button type="button" class="btn btn-warning" title="Aprovar Gasto" onclick="aprovar_gasto('${item.id}', '${item.item}', '${item.solicitante}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
-              } 
+                if(item.aprovado == 'sim'){
+                  tabela += `<td title="${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} Aprovado para o Projeto ${item.proj.toUpperCase()}"><i class='bx bx-check-shield bx-lg' style='color: Lime'></i></td>`;
+                  tabela += `<td title="${item.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})} Aprovado para o Projeto ${item.proj.toUpperCase()}"><i class='bx bx-error-alt bx-lg' style='color: RoyalBlue'></i></td>`;
+                }else{
+                  tabela += `<td><button type="button" class="btn btn-primary" title="Aprovar Gasto" onclick="aprovar_gasto('${item.id}', '${item.item}', '${item.solicitante}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                  tabela += `<td><button type="button" class="btn btn-danger"  title="Recusar Gasto" onclick="indeferir_gasto('${item.id}', '${item.item}', '${item.solicitante}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>`;
+                } 
             }else{
               tabela += `<td title="Reservado ao Financeiro"><i class='bx bx-link bx-lg' style='color: RoyalBlue'></i></td>`;
+              tabela += `<td title="Reservado ao Financeiro"><i class='bx bx-link bx-lg' style='color: Lime'></i></td>`;
             }
+
+
             tabela += `<td>Solicitado em: ${item.hora}</td>`;
             if(item.entregue === null){
               if(sessionStorage.nivel === 'Financeiro'){

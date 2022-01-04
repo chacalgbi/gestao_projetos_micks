@@ -15,6 +15,8 @@
     <script src="./assets/dist/js/pace.js"></script>
     <link rel="stylesheet" href="./assets/dist/css/red/radar.css">
     <script src="./assets/dist/js/notify.js"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <script src='//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js'></script>
     <link rel='stylesheet' href='//cdn.datatables.net/searchbuilder/1.3.0/css/searchBuilder.dataTables.min.css'>
     <link rel='stylesheet' href='//cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css'>
     <link rel='stylesheet' href='//cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css'></link>
@@ -222,12 +224,17 @@
                       const pessoas = item.responsaveis.split(", ");
                       if(pessoas.includes(sessionStorage.nome) || sessionStorage.nivel === 'Financeiro'){
                         let imagem = '';
+                        let texto = '';
+
                         if(item.aprovado === 'nao'){
                           imagem = 'loading.gif';
+                          texto = 'Projeto não aprovado';
                         }else if(item.aprovado === 'sim'){
                           imagem = 'OK.png';
+                          texto = 'Projeto Aprovado';
                         }else{
                           imagem = 'bloqueado.png';
+                          texto = 'Projeto Pendente';
                         }
                         tabela += "<tr>";
                           tabela += `
@@ -242,19 +249,10 @@
                           <td>${item.concluido}</td>
                           <td title="${item.obs}">${item.obs.substring(10, 0)}...</td>
                           <td>R$ ${soma}</td>
-                          <td><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
-                          if(item.aprovado === 'sim'){
+                          <td title="${texto}"><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
+
+                          if(sessionStorage.nivel === 'Financeiro'){
                             tabela += `
-                            <td>Aprovado</td>
-                            <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado." style='color: #f36e6e	'></i></td>
-                            `;
-                          }else if(item.aprovado === 'pend'){
-                            tabela += `
-                            <td>Pendente de Aprovação</td>
-                            <td><i class='bx bx-filter-alt bx-md' title="Não é possível editar um projeto pendente de aprovação" style='color: #FFEB47'></i></td>
-                            `;
-                          }else{
-                              tabela += `
                               <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.id}', '${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
                               <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
                                 data-bs-id="${item.id}"
@@ -267,6 +265,32 @@
                                 data-bs-concluido="${item.concluido}"
                                 data-bs-obs="${item.obs}"
                               ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
+                          }else{
+                            if(item.aprovado === 'sim'){
+                              tabela += `
+                              <td>Aprovado</td>
+                              <td><i class='bx bxs-error bx-md' title="Não é possível editar um projeto após aprovado." style='color: #f36e6e	'></i></td>
+                              `;
+                            }else if(item.aprovado === 'pend'){
+                              tabela += `
+                              <td>Pendente de Aprovação</td>
+                              <td><i class='bx bx-filter-alt bx-md' title="Não é possível editar um projeto pendente de aprovação" style='color: #FFEB47'></i></td>
+                              `;
+                            }else{
+                                tabela += `
+                                <td><button type="button" class="btn btn-success" title="Solicitar aprovação do Projeto" onclick="solicitar_aprovacao('${item.id}', '${item.nome}', '${item.prog}', '${sessionStorage.nome}', '${soma}')"><i class='bx bx-dollar-circle bx-md'></i></button></td>
+                                <td><button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal" title="Editar Projeto"
+                                  data-bs-id="${item.id}"
+                                  data-bs-nome="${item.nome}"
+                                  data-bs-prog="${item.programa}"
+                                  data-bs-responsaveis="${item.responsaveis}"
+                                  data-bs-objetivo="${item.objetivo}"
+                                  data-bs-inicio="${item.previsao_inicio}"
+                                  data-bs-fim="${item.previsao_fim}"
+                                  data-bs-concluido="${item.concluido}"
+                                  data-bs-obs="${item.obs}"
+                                ><i class='bx bx-edit bx-tada bx-md'></i></button></td>`;
+                            }
                           }
                         tabela += "</tr>";
                         indice ++;
@@ -337,8 +361,8 @@
 
       function inserir_projeto(){
         let program = document.getElementById('programa_insert').value;
-        let valor_item = parseFloat(document.getElementById('uni_insert').value.replace(",","."));
-        let check_item = projetoItem;
+        //let valor_item = parseFloat(document.getElementById('uni_insert').value.replace(",","."));
+        //let check_item = projetoItem;
 
         if(program.length > 4){
           Swal.fire({ icon: 'error', title: 'Oops...', text: 'Selecione um Programa' });
@@ -353,8 +377,8 @@
             fim: document.getElementById('prev_fim_insert').value,
             obs: document.getElementById('obs_insert').value,
             concluido: document.getElementById('concluido_insert').value,
-            valor_item: valor_item,
-            check_item: check_item
+            //valor_item: valor_item,
+            //check_item: check_item
           }
           //console.log(obj_insert);
           

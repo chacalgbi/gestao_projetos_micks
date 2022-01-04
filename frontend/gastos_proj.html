@@ -65,7 +65,7 @@
   <div id="principal" class="container-fluid p-3 mb-2 text-white border border-secondary" style="border-radius: 30px;">
     <div class="row d-flex justify-content-evenly">
       <div class="info col-sm-11 d-flex justify-content-evenly">
-        <h1>Aprovação de Gastos</h1>
+        <h1>Gastos, comprovantes e restituições</h1>
       </div>
     </div>
     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
@@ -84,7 +84,6 @@
             <th>Data/Hora Solicitação</th>
             <th>OBS</th>
             <th>Data da Retirada</th>
-            <th>Aprovar Gastos</th>
             <th>Comprovantes</th>
             <th>Restituição</th>
           </tr>
@@ -271,7 +270,7 @@
             } else {
               $("#btn_inserir").notify("Gasto cadastrado com sucesso!", { position: 'top left', className: 'success', autoHideDelay: 3000 });
               // Envia Mensagem via telegram pedido a aprovaçao do gasto.
-              const obj_msg = {msg: `${obj_gasto.solicitante} enviou um Gasto no valor de R$${obj_gasto.valor} do Projeto "${projeto}" para o dia ${obj_gasto.data_retirada} para aprovação!`}
+              const obj_msg = {msg: `${obj_gasto.solicitante} enviou um Gasto do Projeto "${projeto}" para o dia ${obj_gasto.data_retirada} para aprovação!`}
               enviar_telegram(obj_msg);
               setTimeout(function () { location.replace("gastos.html"); }, 5000);
             }
@@ -338,7 +337,7 @@
             tabela += `<td>${item.hora}</td>`;
             tabela += `<td>${item.obs}</td>`;
             tabela += `<td>${item.data1}</td>`;
-            if(sessionStorage.nivel === 'Financeiro'){
+            /* if(sessionStorage.nivel === 'Financeiro'){
               if(item.aprovado == 'sim'){
                 tabela += `<td title="Gasto Aprovado"><i class='bx bx-check-shield bx-lg' style='color: RoyalBlue'></i></td>`;
               }else{
@@ -346,7 +345,7 @@
               } 
             }else{
               tabela += `<td title="Reservado ao Financeiro"><i class='bx bx-link bx-lg' style='color: RoyalBlue'></i></td>`;
-            }
+            } */
             tabela += `<td>
                   <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal_comprovantes" title="Comprovantes de gastos"
                     data-bs-id="${item.id}"
@@ -432,13 +431,18 @@
       console.log(array_uploads);
       let tabela = '';
       array_uploads.map((item)=>{
-        tabela += "<tr>";
-          tabela += `<td>${item.item}</td>`;
-          tabela += `<td>${item.solicitante}</td>`;
-          tabela += `<td><a href="${ip}${item.arquivo}" target="_blank">${item.arquivo}</a></td>`;
-          tabela += `<td>${item.hora1}</td>`;
-          tabela += `<td>${item.obs}</td>`;
-        tabela += "</tr>";
+        if(item.arquivo === 'undefined'){
+          // Caso dê erro ao fazer o upload.
+        }else{
+          tabela += "<tr>";
+            tabela += `<td>${item.item}</td>`;
+            tabela += `<td>${item.solicitante}</td>`;
+            tabela += `<td><a href="${ip}${item.arquivo}" target="_blank">${item.arquivo}</a></td>`;
+            tabela += `<td>${item.hora1}</td>`;
+            tabela += `<td>${item.obs}</td>`;
+          tabela += "</tr>";
+        }
+
       });
       document.getElementById('compro_tabela').innerHTML = tabela;
     }

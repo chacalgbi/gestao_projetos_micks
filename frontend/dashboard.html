@@ -113,6 +113,7 @@
 
         array_projetos.map((item, index)=>{
           let imagem = '';
+          let texto = '';
 
           let temp1 = parseFloat(array_gastos[index][0].total_itens);
           let temp2 = parseFloat(array_gastos[index][0].total_gastos);
@@ -149,10 +150,13 @@
           if(item.aprovado === 'nao'){
             saldo_disponivel = 0;
             imagem = 'loading.gif';
+            texto = 'Projeto não aprovado';
           }else if(item.aprovado === 'sim'){
             imagem = 'OK.png';
+            texto = 'Projeto Aprovado';
           }else{
             imagem = 'bloqueado.png';
+            texto = 'Projeto Pendente';
           }
 
           const pessoas = item.responsaveis.split(", ");
@@ -160,7 +164,7 @@
 
               tabela += "<tr>";
                 tabela += `<td>${item.nome}</td>`;
-                tabela += `<td>${item.responsaveis}</td>`;
+                tabela += `<td title="${item.responsaveis}">${item.responsaveis.substring(40, 0)}...</td>`;
                 tabela += `<td>${valor_total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;
                 tabela += `<td>${valor_gasto.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;   
                 tabela += `<td>${saldo_disponivel.toLocaleString('pt-br',{style: 'currency', currency: 'BRL', minimumFractionDigits: 2})}</td>`;      
@@ -172,7 +176,7 @@
                 }else{
                   tabela += `<td class="text-center"><a role="button" class="btn btn-outline-warning" title="Solicitar Gasto para o Projeto" href="gastos.html"><i class='bx bx-dollar bx-md'></i></a></td>`;
                 }
-                tabela += `<td title="Status do Projeto"><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
+                tabela += `<td title="${texto}"><img src="./assets/img/${imagem}" width="40" height="40"></td>`;
 
                 tabela += `<td><a role="button" class="btn btn-outline-danger" title="Gastos solicitados para o projeto ${item.nome.toUpperCase()}" href="gastos_proj.html?id=${item.id}"><i class='bx bx-line-chart bx-md'></i></a></td>`;
                 tabela += `<td>${porcent}%

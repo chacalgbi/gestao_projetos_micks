@@ -62,5 +62,6 @@ routes.get('/gasto_read', gestao.gasto_read);
 routes.get('/gasto_read_limit', gestao.gasto_read_limit);
 routes.post('/gastos_por_projeto', gestao.gastos_por_projeto);
 routes.post('/gasto_entregue', gestao.gasto_entregue);
+routes.post('/indeferir_gasto', gestao.indeferir_gasto);
 
 module.exports = routes;

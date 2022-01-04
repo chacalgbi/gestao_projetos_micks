@@ -721,6 +721,22 @@ class gestao{
     API(resp, res, 200, tudo_ok);
   }
 
+  async indeferir_gasto(req, res){
+    tudo_ok = true;
+    resp = {};
+
+    const query1 = `DELETE FROM gastos WHERE id="${req.body.id}";`;
+    await BD(query1).then((ok)=>{
+      resp.dados = ok;
+      resp.msg = "Sucesso"; 
+    }).catch((erro)=>{
+      tudo_ok = false;
+      resp.msg = erro;      
+    });
+
+    API(resp, res, 200, tudo_ok);
+  }
+
   async upload(req, res){
     tudo_ok = true;
     resp = {};
